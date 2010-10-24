@@ -183,9 +183,12 @@ void scheduler_tick(struct task_struct *p)
  */
 void wake_up_new_task(struct task_struct *p)
 {	
-
-    enqueue_task( p, rq->active );
-    p->need_reschedule = 1;
+    __activate_task( p );
+    //enqueue_task( p, rq->active );
+    if( current->time_slice >= p->time_slice )
+    {
+        p->need_reschedule = 1;
+    }
 }
 
 /* __activate_task
