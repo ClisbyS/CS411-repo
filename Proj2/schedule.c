@@ -154,7 +154,7 @@ void dequeue_task(struct task_struct *p, struct sched_array *array)
 void sched_fork(struct task_struct *p)
 {	
     //printf( "Calling sched_fork\n" );
-    printf( "%d\n", sched_clock() );
+    //printf( "%d\n", sched_clock() );
     p->first_time_slice = current->first_time_slice / 2;
     p->time_slice = p->first_time_slice;
 }
@@ -166,7 +166,7 @@ void sched_fork(struct task_struct *p)
 void scheduler_tick(struct task_struct *p)
 {	
     p->time_slice--;
-    if( p->time_slice == 0 )
+    if( p->time_slice <= 0 )
     {
         p->need_reschedule = 1;
     }
@@ -216,5 +216,5 @@ void deactivate_task(struct task_struct *p)
     //printf( "Calling deactivate_task\n" );
     p->need_reschedule = 0;
     dequeue_task( p , rq->active);
-    printf( "deactive done\n" );
+    //printf( "deactive done\n" );
 }
