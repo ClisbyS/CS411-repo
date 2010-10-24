@@ -105,6 +105,7 @@ void schedule()
 	    {
    	   	if( task->time_slice <= 0 )
 		{
+                    task->first_time_slice = NEWTASKSLICE;
 		    task->time_slice = task->first_time_slice;
                     task->need_reschedule = 1;
 		}
@@ -153,9 +154,9 @@ void dequeue_task(struct task_struct *p, struct sched_array *array)
  */
 void sched_fork(struct task_struct *p)
 {	
-    //printf( "Calling sched_fork\n" );
-    //printf( "%d\n", sched_clock() );
-    p->first_time_slice = current->first_time_slice / 2;
+    int new_slice = current->first_time_slice / 2;
+    rq->curr->first_time_slice = new_slice;
+    p->first_time_slice = new_slice;
     p->time_slice = p->first_time_slice;
 }
 
