@@ -13,6 +13,7 @@ struct thread_info;
  */
 struct sched_array {
 	struct list_head array;
+        int exp;
 };
 
 /* ---------------- Do NOT Touch -------------- */
