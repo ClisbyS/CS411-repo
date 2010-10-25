@@ -2,6 +2,8 @@
  * This file contains the primary logic for the 
  * scheduler.
  */
+//CS 411 Project 2
+//Matt Thomas, Sarah Clisby, Matt Martinson, Ian Crawford
 #include "schedule.h"
 #include "macros.h"
 #include <stddef.h>
@@ -49,7 +51,7 @@ void initschedule(struct runqueue *newrq, struct task_struct *seedTask)
     printf( "Begin init.\n" );
     struct sched_array* actual;
 
-    newrq->nr_running = 1;
+    newrq->nr_running = 0;
     newrq->nr_switches = 0;
 
     actual = malloc( 2 *  sizeof( struct sched_array ) );
@@ -76,9 +78,8 @@ void initschedule(struct runqueue *newrq, struct task_struct *seedTask)
 void killschedule()
 {
     printf( "Begin Kill.\n" );
-
     //free( rq->arrays );
-
+    //free( rq->arrays );
 }
 
 /*-------------Scheduler Code Goes Below------------*/
@@ -105,6 +106,7 @@ void schedule()
 	    {
    	   	if( task->time_slice <= 0 )
 		{
+                    task->first_time_slice = NEWTASKSLICE;
 		    task->time_slice = task->first_time_slice;
                     task->need_reschedule = 1;
 		}
@@ -153,9 +155,9 @@ void dequeue_task(struct task_struct *p, struct sched_array *array)
  */
 void sched_fork(struct task_struct *p)
 {	
-    //printf( "Calling sched_fork\n" );
-    printf( "%d\n", sched_clock() );
-    p->first_time_slice = current->first_time_slice / 2;
+    int new_slice = current->first_time_slice / 2;
+    rq->curr->first_time_slice = new_slice;
+    p->first_time_slice = new_slice;
     p->time_slice = p->first_time_slice;
 }
 
@@ -166,7 +168,7 @@ void sched_fork(struct task_struct *p)
 void scheduler_tick(struct task_struct *p)
 {	
     p->time_slice--;
-    if( p->time_slice == 0 )
+    if( p->time_slice <= 0 )
     {
         p->need_reschedule = 1;
     }
@@ -182,9 +184,11 @@ void scheduler_tick(struct task_struct *p)
  */
 void wake_up_new_task(struct task_struct *p)
 {	
-
-    enqueue_task( p, rq->active );
-    p->need_reschedule = 1;
+    __activate_task( p );
+    if( current->time_slice >= p->time_slice )
+    {
+        p->need_reschedule = 1;
+    }
 }
 
 /* __activate_task
@@ -216,5 +220,5 @@ void deactivate_task(struct task_struct *p)
     //printf( "Calling deactivate_task\n" );
     p->need_reschedule = 0;
     dequeue_task( p , rq->active);
-    printf( "deactive done\n" );
+    //printf( "deactive done\n" );
 }
