@@ -48,12 +48,11 @@ extern long long jiffies;
 
 void initschedule(struct runqueue *newrq, struct task_struct *seedTask)
 {
-    printf( "Begin init.\n" );
     struct sched_array* actual;
 
     newrq->nr_running = 0;
     newrq->nr_switches = 0;
-
+   
     actual = malloc( 2 *  sizeof( struct sched_array ) );
     newrq->arrays[ 0 ] = actual[ 0 ];
 
@@ -63,11 +62,15 @@ void initschedule(struct runqueue *newrq, struct task_struct *seedTask)
     enqueue_task( seedTask, newrq->active );
 
     seedTask->need_reschedule = 1;
+    //context_switch( seedTask );
+    //rq->curr = seedTask;
 
     seedTask->first_time_slice = NEWTASKSLICE;
     seedTask->time_slice = NEWTASKSLICE;
+    
+    newrq->active->exp = 0;
 
-    rq = newrq;
+    rq = newrq;     
 }
 
 /* killschedule
@@ -91,38 +94,38 @@ void killschedule()
 void schedule()
 {
     //printf( "Calling schedule\n" );
+ 
+    unsigned int rem_time;
 
     struct list_head* pos = NULL;
 
     struct task_struct *task = NULL;
-    struct task_struct *next = NULL;
-    
-    unsigned int rem_time = -1;
-  
+    struct task_struct *next = rq->curr; 
+    int swap = 0;
+
+    if( rq->curr == NULL || rq->active->exp )
+	{
+ 	rem_time = -1;
+	}
+    else rem_time = next->time_slice;
+
     list_for_each( pos, &rq->active->array )
         {
         task = list_entry( pos, struct task_struct, run_list );
-        if( task->need_reschedule )
+	task->need_reschedule = 0;
+        if( task->time_slice < rem_time && ( ( rq->active->exp && task != rq->curr ) || !rq->active->exp ) )
 	    {
-   	   	if( task->time_slice <= 0 )
-		{
-                    task->first_time_slice = NEWTASKSLICE;
-		    task->time_slice = task->first_time_slice;
-                    task->need_reschedule = 1;
-		}
-		else if( task->time_slice < rem_time )
-		{
- 		    next = task;
-                    rem_time = task->time_slice;
-		}
+	    next = task;
+            rem_time = task->time_slice;
+	    swap = 1;
 	    }
         }
-    if( next != NULL && next != current )
-	{	
-	    rq->nr_switches++;
-            context_switch( next );
-            rq->curr = next;
-            next->need_reschedule = 0;
+     if( swap )
+	{
+        context_switch( next );
+	rq->nr_switches++;
+        rq->curr = next;
+        rq->active->exp = 0;
 	}
 }
 
@@ -132,8 +135,8 @@ void schedule()
  */
 void enqueue_task(struct task_struct *p, struct sched_array *array)
 {
-    //printf( "Calling enqueue_task\n" );
-    list_add( &p->run_list, &array->array );
+//    printf( "Calling enqueue_task\n" );
+    list_add_tail( &p->run_list, &array->array );
     p->array = array;
     rq->nr_running++;
 }
@@ -143,7 +146,7 @@ void enqueue_task(struct task_struct *p, struct sched_array *array)
  */
 void dequeue_task(struct task_struct *p, struct sched_array *array)
 {
-    //printf( "Calling dequue_task\n" );
+//    printf( "Calling dequue_task\n" );
 
     list_del( &p->run_list );
     p->array = NULL;   
@@ -154,9 +157,11 @@ void dequeue_task(struct task_struct *p, struct sched_array *array)
  * Sets up schedule info for a newly forked task
  */
 void sched_fork(struct task_struct *p)
-{	
-    int new_slice = current->first_time_slice / 2;
+{
+//    printf( "forking\n" );	
+    int new_slice = rq->curr->first_time_slice / 2;
     rq->curr->first_time_slice = new_slice;
+    rq->curr->time_slice = new_slice;
     p->first_time_slice = new_slice;
     p->time_slice = p->first_time_slice;
 }
@@ -170,7 +175,12 @@ void scheduler_tick(struct task_struct *p)
     p->time_slice--;
     if( p->time_slice <= 0 )
     {
+	dequeue_task( p , rq->active );
+        p->time_slice = NEWTASKSLICE;
+        p->first_time_slice = NEWTASKSLICE;
         p->need_reschedule = 1;
+        rq->active->exp = 1;
+        enqueue_task( p , rq->active );
     }
 }
 
@@ -185,7 +195,7 @@ void scheduler_tick(struct task_struct *p)
 void wake_up_new_task(struct task_struct *p)
 {	
     __activate_task( p );
-    if( current->time_slice >= p->time_slice )
+    if( p->time_slice < rq->curr->time_slice )
     {
         p->need_reschedule = 1;
     }
@@ -208,7 +218,10 @@ void activate_task(struct task_struct *p)
 {	
     //printf( "Calling activate_task\n" );
     __activate_task( p );
-    p->need_reschedule = 1;
+    if( p->time_slice < rq->curr->time_slice )
+    {   
+	p->need_reschedule = 1;
+    }
 }
 
 /* deactivate_task
@@ -218,7 +231,10 @@ void activate_task(struct task_struct *p)
 void deactivate_task(struct task_struct *p)
 {
     //printf( "Calling deactivate_task\n" );
-    p->need_reschedule = 0;
+    if( p == rq->curr ){
+        p->need_reschedule = 1;
+	rq->active->exp = 1;
+	}
+    //p->need_reschedule = 0;
     dequeue_task( p , rq->active);
-    //printf( "deactive done\n" );
 }
