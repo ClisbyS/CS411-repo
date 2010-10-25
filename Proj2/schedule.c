@@ -2,6 +2,8 @@
  * This file contains the primary logic for the 
  * scheduler.
  */
+//CS 411 Project 2
+//Matt Thomas, Sarah Clisby, Matt Martinson, Ian Crawford
 #include "schedule.h"
 #include "macros.h"
 #include <stddef.h>
@@ -49,7 +51,7 @@ void initschedule(struct runqueue *newrq, struct task_struct *seedTask)
     printf( "Begin init.\n" );
     struct sched_array* actual;
 
-    newrq->nr_running = 1;
+    newrq->nr_running = 0;
     newrq->nr_switches = 0;
 
     actual = malloc( 2 *  sizeof( struct sched_array ) );
@@ -76,9 +78,8 @@ void initschedule(struct runqueue *newrq, struct task_struct *seedTask)
 void killschedule()
 {
     printf( "Begin Kill.\n" );
-
     //free( rq->arrays );
-
+    //free( rq->arrays );
 }
 
 /*-------------Scheduler Code Goes Below------------*/
@@ -184,7 +185,6 @@ void scheduler_tick(struct task_struct *p)
 void wake_up_new_task(struct task_struct *p)
 {	
     __activate_task( p );
-    //enqueue_task( p, rq->active );
     if( current->time_slice >= p->time_slice )
     {
         p->need_reschedule = 1;
