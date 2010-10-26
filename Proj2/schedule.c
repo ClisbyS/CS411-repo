@@ -48,8 +48,10 @@ extern long long jiffies;
 
 void initschedule(struct runqueue *newrq, struct task_struct *seedTask)
 {
+    // Local Variables
     struct sched_array* actual;
 
+    // Initialize newrq and allocate memory
     newrq->nr_running = 0;
     newrq->nr_switches = 0;
    
@@ -59,17 +61,17 @@ void initschedule(struct runqueue *newrq, struct task_struct *seedTask)
     newrq->active = &newrq->arrays[ 0 ];
     INIT_LIST_HEAD( &newrq->arrays[ 0 ].array );
 
+    // Setup and add seedTask to queue
     enqueue_task( seedTask, newrq->active );
 
     seedTask->need_reschedule = 1;
-    //context_switch( seedTask );
-    //rq->curr = seedTask;
 
     seedTask->first_time_slice = NEWTASKSLICE;
     seedTask->time_slice = NEWTASKSLICE;
     
     newrq->active->exp = 0;
 
+    // Assign global runqueue to allocated pointer
     rq = newrq;     
 }
 
