@@ -2,6 +2,8 @@
  * This file contains the primary logic for the 
  * scheduler.
  */
+//CS 411 Project 2
+//Matt Thomas, Sarah Clisby, Matt Martinson, Ian Crawford
 #include "schedule.h"
 #include "macros.h"
 #include <stddef.h>
@@ -10,7 +12,6 @@
 #include <string.h>
 
 #define NEWTASKSLICE (NS_TO_JIFFIES(100000000))
-#define NUMPRIOR 140;
 
 /* Local Globals
  * rq - This is a pointer to the runqueue that the scheduler uses.
@@ -44,41 +45,32 @@ extern long long jiffies;
   * seedTask - A pointer to a task to seed the scheduler and start
   * the simulation.
   */
+
 void initschedule(struct runqueue *newrq, struct task_struct *seedTask)
 {
-    printf( "Begin init.\n" );
-    //struct sched_array actual[ 2 ];
     struct sched_array* actual;
 
-    newrq->nr_running = 1;
+    newrq->nr_running = 0;
     newrq->nr_switches = 0;
-    newrq->expired_timestamp = 0;
-    newrq->most_recent_timestamp = 0;
-    newrq->curr = seedTask;
-
-    actual = malloc( 2 * sizeof( struct sched_array ) );
+   
+    actual = malloc( 2 *  sizeof( struct sched_array ) );
     newrq->arrays[ 0 ] = actual[ 0 ];
-    newrq->arrays[ 1 ] = actual[ 1 ];
 
     newrq->active = &newrq->arrays[ 0 ];
-    //newrq->expired = &newrq->arrays[ 1 ];
+    INIT_LIST_HEAD( &newrq->arrays[ 0 ].array );
 
-    //INIT_LIST_HEAD( newrq->arrays[ 0 ].array )
+    enqueue_task( seedTask, newrq->active );
 
-    newrq->active->array.next = &seedTask->run_list;
-    newrq->active->array.prev = &seedTask->run_list;
+    seedTask->need_reschedule = 1;
+    //context_switch( seedTask );
+    //rq->curr = seedTask;
 
-    //seedTask->need_reschedule = 1; 
+    seedTask->first_time_slice = NEWTASKSLICE;
+    seedTask->time_slice = NEWTASKSLICE;
+    
+    newrq->active->exp = 0;
 
-    newrq->best_expired_prio = 0;
-
-    seedTask->prio = NUMPRIOR;
-    seedTask->static_prio = NUMPRIOR;
-    seedTask->normal_prio = NUMPRIOR;
-
-    rq = newrq;
-
-    printf( "Finish init.\n" );
+    rq = newrq;     
 }
 
 /* killschedule
@@ -89,8 +81,8 @@ void initschedule(struct runqueue *newrq, struct task_struct *seedTask)
 void killschedule()
 {
     printf( "Begin Kill.\n" );
-    free( rq->arrays );
-    printf( "Finished kill.\n" );
+    //free( rq->arrays );
+    //free( rq->arrays );
 }
 
 /*-------------Scheduler Code Goes Below------------*/
@@ -101,8 +93,40 @@ void killschedule()
  */
 void schedule()
 {
-    printf( "Calling schedule\n" );
-    sleep( 1 );
+    //printf( "Calling schedule\n" );
+ 
+    unsigned int rem_time;
+
+    struct list_head* pos = NULL;
+
+    struct task_struct *task = NULL;
+    struct task_struct *next = rq->curr; 
+    int swap = 0;
+
+    if( rq->curr == NULL || rq->active->exp )
+	{
+ 	rem_time = -1;
+	}
+    else rem_time = next->time_slice;
+
+    list_for_each( pos, &rq->active->array )
+        {
+        task = list_entry( pos, struct task_struct, run_list );
+	task->need_reschedule = 0;
+        if( task->time_slice < rem_time && ( ( rq->active->exp && task != rq->curr ) || !rq->active->exp ) )
+	    {
+	    next = task;
+            rem_time = task->time_slice;
+	    swap = 1;
+	    }
+        }
+     if( swap )
+	{
+        context_switch( next );
+	rq->nr_switches++;
+        rq->curr = next;
+        rq->active->exp = 0;
+	}
 }
 
 
@@ -111,8 +135,10 @@ void schedule()
  */
 void enqueue_task(struct task_struct *p, struct sched_array *array)
 {
-    printf( "Calling enqueue_task\n" );
-    list_add( &p->run_list, &array->array );
+//    printf( "Calling enqueue_task\n" );
+    list_add_tail( &p->run_list, &array->array );
+    p->array = array;
+    rq->nr_running++;
 }
 
 /* dequeue_task
@@ -120,16 +146,24 @@ void enqueue_task(struct task_struct *p, struct sched_array *array)
  */
 void dequeue_task(struct task_struct *p, struct sched_array *array)
 {
-    printf( "Calling dequue_task\n" );
-    list_del( &p->run_list, &array->array );
+//    printf( "Calling dequue_task\n" );
+
+    list_del( &p->run_list );
+    p->array = NULL;   
+    rq->nr_running--;
 }
 
 /* sched_fork
  * Sets up schedule info for a newly forked task
  */
 void sched_fork(struct task_struct *p)
-{	
-    printf( "Calling sched_fork\n" );
+{
+//    printf( "forking\n" );	
+    int new_slice = rq->curr->first_time_slice / 2;
+    rq->curr->first_time_slice = new_slice;
+    rq->curr->time_slice = new_slice;
+    p->first_time_slice = new_slice;
+    p->time_slice = p->first_time_slice;
 }
 
 /* scheduler_tick
@@ -138,7 +172,16 @@ void sched_fork(struct task_struct *p)
  */
 void scheduler_tick(struct task_struct *p)
 {	
-    printf( "Calling scheduler_tick\n" );
+    p->time_slice--;
+    if( p->time_slice <= 0 )
+    {
+	dequeue_task( p , rq->active );
+        p->time_slice = NEWTASKSLICE;
+        p->first_time_slice = NEWTASKSLICE;
+        p->need_reschedule = 1;
+        rq->active->exp = 1;
+        enqueue_task( p , rq->active );
+    }
 }
 
 /* wake_up_new_task
@@ -151,7 +194,11 @@ void scheduler_tick(struct task_struct *p)
  */
 void wake_up_new_task(struct task_struct *p)
 {	
-    printf( "Calling wake_up_new_task\n" );
+    __activate_task( p );
+    if( p->time_slice < rq->curr->time_slice )
+    {
+        p->need_reschedule = 1;
+    }
 }
 
 /* __activate_task
@@ -160,6 +207,7 @@ void wake_up_new_task(struct task_struct *p)
  */
 void __activate_task(struct task_struct *p)
 {
+    enqueue_task( p, rq->active );
 }
 
 /* activate_task
@@ -167,8 +215,13 @@ void __activate_task(struct task_struct *p)
  * from sleeping.
  */
 void activate_task(struct task_struct *p)
-{		
-    printf( "Calling activate_task\n" );
+{	
+    //printf( "Calling activate_task\n" );
+    __activate_task( p );
+    if( p->time_slice < rq->curr->time_slice )
+    {   
+	p->need_reschedule = 1;
+    }
 }
 
 /* deactivate_task
@@ -177,5 +230,11 @@ void activate_task(struct task_struct *p)
  */
 void deactivate_task(struct task_struct *p)
 {
-    printf( "Calling deactivate_task\n" );
+    //printf( "Calling deactivate_task\n" );
+    if( p == rq->curr ){
+        p->need_reschedule = 1;
+	rq->active->exp = 1;
+	}
+    //p->need_reschedule = 0;
+    dequeue_task( p , rq->active);
 }

@@ -95,20 +95,22 @@ void schedule()
 {
     //printf( "Calling schedule\n" );
  
+    // Local variables
     unsigned int rem_time;
-
     struct list_head* pos = NULL;
-
     struct task_struct *task = NULL;
     struct task_struct *next = rq->curr; 
     int swap = 0;
 
+    // If there is no process, or if the active process just expired, get the process with shortest time slice
     if( rq->curr == NULL || rq->active->exp )
 	{
  	rem_time = -1;
 	}
+    // If there is still an active process, only context switch if there is a process with smaller time slice than current process
     else rem_time = next->time_slice;
 
+    // Loop through process queue, set next if one is found with shorter time slice.
     list_for_each( pos, &rq->active->array )
         {
         task = list_entry( pos, struct task_struct, run_list );
@@ -120,13 +122,15 @@ void schedule()
 	    swap = 1;
 	    }
         }
-     if( swap )
-	{
+
+    // If a new process needs to be loaded, call for a context switch
+    if( swap )
+    {
         context_switch( next );
 	rq->nr_switches++;
         rq->curr = next;
         rq->active->exp = 0;
-	}
+    }
 }
 
 
@@ -135,7 +139,8 @@ void schedule()
  */
 void enqueue_task(struct task_struct *p, struct sched_array *array)
 {
-//    printf( "Calling enqueue_task\n" );
+    //printf( "Calling enqueue_task\n" );
+
     list_add_tail( &p->run_list, &array->array );
     p->array = array;
     rq->nr_running++;
@@ -146,10 +151,10 @@ void enqueue_task(struct task_struct *p, struct sched_array *array)
  */
 void dequeue_task(struct task_struct *p, struct sched_array *array)
 {
-//    printf( "Calling dequue_task\n" );
+    //printf( "Calling dequue_task\n" );
 
     list_del( &p->run_list );
-    p->array = NULL;   
+    p->array = NULL;
     rq->nr_running--;
 }
 
@@ -158,7 +163,8 @@ void dequeue_task(struct task_struct *p, struct sched_array *array)
  */
 void sched_fork(struct task_struct *p)
 {
-//    printf( "forking\n" );	
+    //printf( "Forking\n" );
+
     int new_slice = rq->curr->first_time_slice / 2;
     rq->curr->first_time_slice = new_slice;
     rq->curr->time_slice = new_slice;
@@ -171,8 +177,10 @@ void sched_fork(struct task_struct *p)
  * for the task that is currently running.
  */
 void scheduler_tick(struct task_struct *p)
-{	
+{
     p->time_slice--;
+
+    // Manage current process and set reschedule flag if time_slice has expired
     if( p->time_slice <= 0 )
     {
 	dequeue_task( p , rq->active );
@@ -217,6 +225,7 @@ void __activate_task(struct task_struct *p)
 void activate_task(struct task_struct *p)
 {	
     //printf( "Calling activate_task\n" );
+
     __activate_task( p );
     if( p->time_slice < rq->curr->time_slice )
     {   
@@ -231,6 +240,7 @@ void activate_task(struct task_struct *p)
 void deactivate_task(struct task_struct *p)
 {
     //printf( "Calling deactivate_task\n" );
+
     if( p == rq->curr ){
         p->need_reschedule = 1;
 	rq->active->exp = 1;
