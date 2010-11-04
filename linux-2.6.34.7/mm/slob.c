@@ -129,6 +129,12 @@ static LIST_HEAD(free_slob_medium);
 static LIST_HEAD(free_slob_large);
 
 /*
+ * The number of pages currently allocated.
+ */
+
+static unsigned int pages_alloc = 0;
+
+/*
  * is_slob_page: True for all slob pages (false for bigblock pages)
  */
 static inline int is_slob_page(struct slob_page *sp)
@@ -173,6 +179,7 @@ static inline void clear_slob_page_free(struct slob_page *sp)
 
 #define SLOB_UNIT sizeof(slob_t)
 #define SLOB_UNITS(size) (((size) + SLOB_UNIT - 1)/SLOB_UNIT)
+#define UNSLOB_UNITS(size) (SLOB_UNIT*((size) - SLOB_UNIT + 1))
 #define SLOB_ALIGN L1_CACHE_BYTES
 
 /*
@@ -379,6 +386,9 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		b = slob_page_alloc(sp, size, align);
 		BUG_ON(!b);
 		spin_unlock_irqrestore(&slob_lock, flags);
+
+		/* Increment number of pages allocated. */
+		pages_alloc++;
 	}
 	if (unlikely((gfp & __GFP_ZERO) && b))
 		memset(b, 0, size);
@@ -398,6 +408,9 @@ static void slob_free(void *block, int size)
 	if (unlikely(ZERO_OR_NULL_PTR(block)))
 		return;
 	BUG_ON(!size);
+
+	/* Decrement number of pages allocated. */
+	pages_alloc--;
 
 	sp = slob_page(block);
 	units = SLOB_UNITS(size);
@@ -696,4 +709,34 @@ void __init kmem_cache_init(void)
 void __init kmem_cache_init_late(void)
 {
 	/* Nothing to do */
+}
+
+unsigned int sys_get_slob_amt_claimed()
+{
+	return (pages_alloc * PAGE_SIZE);
+}
+
+unsigned int sys_get_slob_amt_free()
+{
+	struct list_head *slob_list;
+	struct slob_page *sp;
+
+	unsigned int free_bytes = 0;
+
+	slob_list = &free_slob_small;
+	list_for_each( sp, slob_list, list ){
+		free_bytes += UNSLOB_UNITS( sp->units );
+	}
+	 
+	slob_list = &free_slob_medium;
+	list_for_each( sp, slob_list, list ){
+		free_bytes += UNSLOB_UNITS( sp->units );
+	}
+
+	slob_list = &free_slob_large;
+	list_for_each( sp, slob_list, list ){
+		free_bytes += UNSLOB_UNITS( sp->units );
+	}
+
+	return free_bytes; 
 }
