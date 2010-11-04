@@ -1,3 +1,5 @@
+//CS 411 Group 2
+//Matt Thomas, Matt Martinson, Ian Crawford, Sarah Clisby
 /*
  * SLOB Allocator: Simple List Of Blocks
  *
