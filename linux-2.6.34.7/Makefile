@@ -4,6 +4,8 @@ SUBLEVEL = 34
 EXTRAVERSION = .7
 NAME = Sheep on Meth
 
+# Git-testing! Indeed! BRILLIANT! 
+
 # *DOCUMENTATION*
 # To see a list of typical targets execute "make help"
 # More info can be located in ./README
