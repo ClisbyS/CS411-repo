@@ -11,8 +11,8 @@ int main( int argc, char ** argv ) {
   claimed = syscall( /*__NR_sys_get_slob_amt_claimed*/ 338 );
   free = syscall( /*__NR_sys_get_slob_amt_free*/ 339 );
 
-  printf( "Claimed memory: %d\n", claimed );
-  printf( "Free memory: %d\n", free );
+  printf( "Claimed memory: %u\n", claimed );
+  printf( "Free memory: %u\n", free );
 
   return 0;
 
