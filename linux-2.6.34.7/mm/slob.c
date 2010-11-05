@@ -726,17 +726,17 @@ unsigned int sys_get_slob_amt_free()
 	unsigned int free_bytes = 0;
 
 	slob_list = &free_slob_small;
-	list_for_each( sp, slob_list, list ){
+	list_for_each_entry( sp, slob_list, list ){
 		free_bytes += UNSLOB_UNITS( sp->units );
 	}
 	 
 	slob_list = &free_slob_medium;
-	list_for_each( sp, slob_list, list ){
+	list_for_each_entry( sp, slob_list, list ){
 		free_bytes += UNSLOB_UNITS( sp->units );
 	}
 
 	slob_list = &free_slob_large;
-	list_for_each( sp, slob_list, list ){
+	list_for_each_entry( sp, slob_list, list ){
 		free_bytes += UNSLOB_UNITS( sp->units );
 	}
 
