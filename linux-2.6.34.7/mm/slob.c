@@ -716,7 +716,7 @@ void __init kmem_cache_init_late(void)
 unsigned int sys_get_slob_amt_claimed()
 {
         printk( "Amount claimed is\t\tpages_alloc: %u\n", pages_alloc );
-	printk( "PAGE_SIZE in int: %d, uint: %u, float: %f\n", PAGE_SIZE, PAGE_SIZE, PAGE_SIZE" );
+	printk( "PAGE_SIZE in int: %lu\n", PAGE_SIZE );
 	return (pages_alloc * PAGE_SIZE);
 	
 }
