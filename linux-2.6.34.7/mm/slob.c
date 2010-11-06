@@ -412,7 +412,7 @@ static void slob_free(void *block, int size)
 	BUG_ON(!size);
 
 	/* Decrement number of pages allocated. */
-	pages_alloc--;
+	//pages_alloc--; //CHINGAS
 
 	sp = slob_page(block);
 	units = SLOB_UNITS(size);
@@ -715,7 +715,7 @@ void __init kmem_cache_init_late(void)
 
 unsigned int sys_get_slob_amt_claimed()
 {
-        printk( KERN_ALERT "Amount claimed is\t\tpages_alloc: %u\n", pages_alloc );
+        printk( KERN_ALERT "Amount pages_alloc: %u\n", pages_alloc );
 	printk( KERN_ALERT "PAGE_SIZE in int: %lu\n", PAGE_SIZE );
 	return (pages_alloc * (unsigned int)PAGE_SIZE);
 	
