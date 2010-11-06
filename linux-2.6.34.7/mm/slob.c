@@ -422,6 +422,8 @@ static void slob_free(void *block, int size)
 			clear_slob_page_free(sp);
 		spin_unlock_irqrestore(&slob_lock, flags);
 		clear_slob_page(sp);
+		/* Decrement number of pages allocated. */
+		pages_alloc--; //CHINGAS
 		free_slob_page(sp);
 		slob_free_pages(b, 0);
 		return;
@@ -474,8 +476,7 @@ static void slob_free(void *block, int size)
 out:
 	spin_unlock_irqrestore(&slob_lock, flags);
 
-	/* Decrement number of pages allocated. */
-	pages_alloc--; //CHINGAS
+	
 }
 
 /*
