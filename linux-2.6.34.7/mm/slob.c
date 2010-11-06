@@ -717,7 +717,7 @@ unsigned int sys_get_slob_amt_claimed()
 {
         printk( KERN_ALERT "Amount claimed is\t\tpages_alloc: %u\n", pages_alloc );
 	printk( KERN_ALERT "PAGE_SIZE in int: %lu\n", PAGE_SIZE );
-	return (pages_alloc * PAGE_SIZE);
+	return (pages_alloc * (unsigned int)PAGE_SIZE);
 	
 }
 
