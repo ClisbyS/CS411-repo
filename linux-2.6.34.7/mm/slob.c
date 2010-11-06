@@ -411,9 +411,6 @@ static void slob_free(void *block, int size)
 		return;
 	BUG_ON(!size);
 
-	/* Decrement number of pages allocated. */
-	//pages_alloc--; //CHINGAS
-
 	sp = slob_page(block);
 	units = SLOB_UNITS(size);
 
@@ -476,6 +473,9 @@ static void slob_free(void *block, int size)
 	}
 out:
 	spin_unlock_irqrestore(&slob_lock, flags);
+
+	/* Decrement number of pages allocated. */
+	pages_alloc--; //CHINGAS
 }
 
 /*
@@ -579,7 +579,8 @@ struct kmem_cache {
 struct kmem_cache *kmem_cache_create(const char *name, size_t size,
 	size_t align, unsigned long flags, void (*ctor)(void *))
 {
-	struct kmem_cache *c;
+	struct kmem_cache *c;/* Decrement number of pages allocated. */
+	//pages_alloc--; //CHINGAS
 
 	c = slob_alloc(sizeof(struct kmem_cache),
 		GFP_KERNEL, ARCH_KMALLOC_MINALIGN, -1);
