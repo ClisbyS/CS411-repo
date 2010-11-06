@@ -260,7 +260,7 @@ static void *slob_new_pages(gfp_t gfp, int order, int node)
 
 	if (!page)
 		return NULL;
-
+	pages_alloc++;
 	return page_address(page);
 }
 
@@ -390,7 +390,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		spin_unlock_irqrestore(&slob_lock, flags);
 
 		/* Increment number of pages allocated. */
-		pages_alloc++;
+		//pages_alloc++;
 	}
 	if (unlikely((gfp & __GFP_ZERO) && b))
 		memset(b, 0, size);
