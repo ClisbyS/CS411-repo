@@ -419,6 +419,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 	struct list_head *slob_list;
 	slob_t *b = NULL;
 	unsigned long flags;
+	struct best = best_block;
 	
 	//if (size < SLOB_BREAK1)
 		slob_list = &free_slob_small;
@@ -427,7 +428,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 	//else
 	//	slob_list = &free_slob_large;
 	
-	struct best = best_block;
+	
 	//this could be bad
 	best->block_size = PAGE_SIZE + 1;
 	best->object_size = size;
