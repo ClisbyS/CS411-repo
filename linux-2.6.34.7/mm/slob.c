@@ -300,16 +300,25 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block *best, s
                 if (avail >= units + delta) { /* room enough? */
                         slob_t *next;
 
-/*
+
                         if (delta) { // need to fragment head to align?
-                                next = slob_next(cur);
+                                /*next = slob_next(cur);
                                 set_slob(aligned, avail - delta, next);
                                 set_slob(cur, delta, aligned);
                                 prev = cur;
                                 cur = aligned;
-                                avail = slob_units(cur);
+                                avail = slob_units(cur);*/
+				if((avail - units) < (best->block_size - best->object_size)) {
+					best->prev = prev;
+					best->cur = cur;
+					best->next = next;
+					best->object_size = units;
+					best->block_size = avail;
+					best->page = sp;
+				}
+				
                         }
-*/
+
 
                         next = slob_next(cur);
                         if (avail == units) { /* exact fit? unlink. */
@@ -329,7 +338,7 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block *best, s
                                 //else
                                 //       sp->free = cur + units;
                                 //set_slob(cur + units, avail - units, next);
-				if ((avail - units) < (best_block->block_size - best_block->object_size)) {
+				if ((avail - units) < (best->block_size - best->object_size)) {
 					best->prev = prev;
                                         best->cur = cur;
                                         best->next = next;
