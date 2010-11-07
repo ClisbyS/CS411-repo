@@ -272,6 +272,13 @@ static void slob_free_pages(void *b, int order)
 }
 
 /*
+ * Finds best fit block in a given slob_page sp.
+*/
+static void find_best_fit_block(struct slob_page *sp, size_t size, int align)
+{
+	//code here
+}
+/*
  * Allocate a slob block within a given slob_page sp.
  */
 static void *slob_page_alloc(struct slob_page *sp, size_t size, int align)
@@ -280,7 +287,7 @@ static void *slob_page_alloc(struct slob_page *sp, size_t size, int align)
 	int delta = 0, units = SLOB_UNITS(size);
 
 	for (prev = NULL, cur = sp->free; ; prev = cur, cur = slob_next(cur)) {
-		slobidx_t avail = slob_units(cur);
+	slobidx_t avail = slob_units(cur);
 
 		if (align) {
 			aligned = (slob_t *)ALIGN((unsigned long)cur, align);
