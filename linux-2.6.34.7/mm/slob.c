@@ -423,7 +423,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 	struct list_head *slob_list;
 	slob_t *b = NULL;
 	unsigned long flags;
-	struct best = best_block();
+	struct best_block best;
 	slobidx_t avail;
 	
 	//if (size < SLOB_BREAK1)
