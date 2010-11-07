@@ -278,6 +278,7 @@ static void find_best_fit_block(struct slob_page *sp, size_t size, int align)
 {
 	//code here
 }
+
 /*
  * Allocate a slob block within a given slob_page sp.
  */
