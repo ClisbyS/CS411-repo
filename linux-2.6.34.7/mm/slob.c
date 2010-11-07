@@ -91,6 +91,15 @@ struct slob_block {
 };
 typedef struct slob_block slob_t;
 
+/* Keeps track of the best-fit block */
+struct best_block {
+	int object_size;	/* Size of thing we're allocating */
+	slobidx_t block_size;	/* Size of block */
+	slob_t *prev		/* Previous block */
+	slob_t *cur		/* Current block (the best one) */
+	slob_t *next		/* Next block */
+};
+
 /*
  * We use struct page fields to manage some slob allocation aspects,
  * however to avoid the horrible mess in include/linux/mm_types.h, we'll
@@ -274,9 +283,67 @@ static void slob_free_pages(void *b, int order)
 /*
  * Finds best fit block in a given slob_page sp.
 */
-static void find_best_fit_block(struct slob_page *sp, size_t size, int align)
+static void find_best_fit_block(struct slob_page *sp, struct best_block *best, size_t size, int align)
 {
-	//code here
+	slob_t *prev, *cur, *aligned = NULL;
+        int delta = 0, units = SLOB_UNITS(size);
+
+        for (prev = NULL, cur = sp->free; ; prev = cur, cur = slob_next(cur)) {
+        slobidx_t avail = slob_units(cur);
+
+                if (align) {
+                        aligned = (slob_t *)ALIGN((unsigned long)cur, align);
+                        delta = aligned - cur;
+                }
+
+                if (avail >= units + delta) { /* room enough? */
+                        slob_t *next;
+
+/*
+                        if (delta) { // need to fragment head to align?
+                                next = slob_next(cur);
+                                set_slob(aligned, avail - delta, next);
+                                set_slob(cur, delta, aligned);
+                                prev = cur;
+                                cur = aligned;
+                                avail = slob_units(cur);
+                        }
+*/
+
+                        next = slob_next(cur);
+                        if (avail == units) { /* exact fit? unlink. */
+                                //if (prev)
+					best_block->prev = prev;
+					best_block->cur = cur;
+					best_block->next = next;
+					best_block->object_size = units;
+					best_block->block_size = avail;
+                                	// set_slob(prev, slob_units(prev), next);
+                                //else
+                                  //      sp->free = next;
+                        } else { /* fragment */
+                                //if (prev)
+                                  //      set_slob(prev, slob_units(prev), cur + units);
+                                //else
+                                //       sp->free = cur + units;
+                                //set_slob(cur + units, avail - units, next);
+				if ((avail - units) < (best_block->block_size - best_block->object_size)) {
+					best_block->prev = prev;
+                                        best_block->cur = cur;
+                                        best_block->next = next;
+                                        best_block->object_size = units;
+                                        best_block->block_size = avail;
+				}
+                        }
+
+                        //sp->units -= units;
+                        //if (!sp->units)
+                        //        clear_slob_page_free(sp);
+                        //return cur;
+                }
+                if (slob_last(cur))
+                        return NULL;
+        }
 }
 
 /*
