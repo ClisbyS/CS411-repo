@@ -280,6 +280,13 @@ static void slob_free_pages(void *b, int order)
 }
 
 /*
+ * Finds best fit block in a given slob_page sp.
+*/
+static void find_best_fit_block(struct slob_page *sp, size_t size, int align)
+{
+	//code here
+}
+/*
  * Allocate a slob block within a given slob_page sp.
  */
 static void *slob_page_alloc(struct slob_page *sp, size_t size, int align)
@@ -288,7 +295,7 @@ static void *slob_page_alloc(struct slob_page *sp, size_t size, int align)
 	int delta = 0, units = SLOB_UNITS(size);
 
 	for (prev = NULL, cur = sp->free; ; prev = cur, cur = slob_next(cur)) {
-		slobidx_t avail = slob_units(cur);
+	slobidx_t avail = slob_units(cur);
 
 		if (align) {
 			aligned = (slob_t *)ALIGN((unsigned long)cur, align);
@@ -341,12 +348,12 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 	slob_t *b = NULL;
 	unsigned long flags;
 
-	if (size < SLOB_BREAK1)
+	//if (size < SLOB_BREAK1)
 		slob_list = &free_slob_small;
-	else if (size < SLOB_BREAK2)
-		slob_list = &free_slob_medium;
-	else
-		slob_list = &free_slob_large;
+	//else if (size < SLOB_BREAK2)
+	//	slob_list = &free_slob_medium;
+	//else
+	//	slob_list = &free_slob_large;
 
 	spin_lock_irqsave(&slob_lock, flags);
 	/* Iterate through each partially free page, try to find room */
