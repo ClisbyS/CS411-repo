@@ -91,6 +91,14 @@ struct slob_block {
 };
 typedef struct slob_block slob_t;
 
+struct best_block {
+	int object_size;	/* Size of thing we're allocating */
+	slobidx_t block_size;	/* Size of block */
+	slob_t *prev		/* Previous block */
+	slob_t *cur		/* Current block (the best one) */
+	slob_t *next		/* Next block */
+};
+
 /*
  * We use struct page fields to manage some slob allocation aspects,
  * however to avoid the horrible mess in include/linux/mm_types.h, we'll
