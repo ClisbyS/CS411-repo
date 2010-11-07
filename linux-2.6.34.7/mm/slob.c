@@ -101,6 +101,10 @@ struct best_block {
 	slob_page *page		/* Page with best fit */
 };
 
+/* Function prototypes for system calls */
+unsigned int sys_get_slob_amt_claimed();
+unsigned int sys_get_slob_amt_free();
+
 /*
  * We use struct page fields to manage some slob allocation aspects,
  * however to avoid the horrible mess in include/linux/mm_types.h, we'll
@@ -420,6 +424,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 	slob_t *b = NULL;
 	unsigned long flags;
 	struct best = best_block;
+	slobidx_t avail;
 	
 	//if (size < SLOB_BREAK1)
 		slob_list = &free_slob_small;
@@ -493,6 +498,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		cur = best -> cur;
 		prev = best -> prev;
 		sp = best -> page;
+		avail = best->block_size;
 
 		if (delta) { /* need to fragment head to align? */
 			next = slob_next(cur);
@@ -504,7 +510,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		}
 
 		next = slob_next(cur);
-		if (avail == units) { /* exact fit? unlink. */
+		if (avail == size) { /* exact fit? unlink. */
 			if (prev)
 				set_slob(prev, slob_units(prev), next);
 			else
@@ -513,11 +519,11 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 			if (prev)
 				set_slob(prev, slob_units(prev), cur + units);
 			else
-				sp->free = cur + units;
-			set_slob(cur + units, avail - units, next);
+				sp->free = cur + size;
+			set_slob(cur + size, avail - size, next);
 		}
 
-		sp->units -= units;
+		sp->units -= size;
 		if (!sp->units)
 			clear_slob_page_free(sp);
 		//return cur;
