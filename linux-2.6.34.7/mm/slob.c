@@ -425,7 +425,7 @@ static void *slob_page_alloc(struct slob_page *sp, size_t size, int align)
 static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 {
 	struct slob_page *sp;
-	//struct list_head *prev;
+	//struct list_head *prev_loop;
 	slob_t *prev;
 	slob_t *next;
 	slob_t *aligned;
@@ -467,7 +467,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 			continue;
 
 		/* Attempt to alloc */
-		prev = sp->list.prev;
+		//prev_loop = sp->list.prev;
 		//b = slob_page_alloc(sp, size, align);
 		find_best_fit_block(sp, &best, size, align);
 		if((best.block_size - best.object_size) == 0){
