@@ -446,7 +446,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 	best.object_size = size;
 	best.(*prev) = NULL;
 	best.*cur = NULL;
-	best.*next = NULL;
+	best.next = 0;
 
 	spin_lock_irqsave(&slob_lock, flags);
 	/* Iterate through each partially free page, try to find room */
