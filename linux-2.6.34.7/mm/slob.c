@@ -92,14 +92,7 @@ struct slob_block {
 typedef struct slob_block slob_t;
 
 /* Keeps track of the best-fit block */
-struct best_block_slob {
-	int object_size;	/* Size of thing we're allocating */
-	slobidx_t block_size;	/* Size of block */
-	slob_t *prev;		/* Previous block */
-	slob_t *cur;		/* Current block (the best one) */
-	slob_t *next;		/* Next block */
-	slob_page *page;		/* Page with best fit */
-};
+struct best_block_slob;
 
 
 
@@ -123,6 +116,16 @@ struct slob_page {
 };
 static inline void struct_slob_page_wrong_size(void)
 { BUILD_BUG_ON(sizeof(struct slob_page) != sizeof(struct page)); }
+
+/* Keeps track of the best-fit block */
+struct best_block_slob {
+	int object_size;	/* Size of thing we're allocating */
+	slobidx_t block_size;	/* Size of block */
+	slob_t *prev;		/* Previous block */
+	slob_t *cur;		/* Current block (the best one) */
+	slob_t *next;		/* Next block */
+	slob_page *page;		/* Page with best fit */
+};
 
 /*
  * free_slob_page: call before a slob_page is returned to the page allocator.
