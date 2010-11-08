@@ -153,8 +153,8 @@ static unsigned int pages_alloc = 0;
 
 
 /* Function prototypes for system calls */
-unsigned int sys_get_slob_amt_claimed();
-unsigned int sys_get_slob_amt_free();
+/*unsigned int sys_get_slob_amt_claimed();
+unsigned int sys_get_slob_amt_free();*/
 
 /*
  * is_slob_page: True for all slob pages (false for bigblock pages)
@@ -450,6 +450,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 	best.prev = NULL;
 	best.cur = NULL;
 	best.next = NULL;
+	best.page = NULL;
 
 	spin_lock_irqsave(&slob_lock, flags);
 	/* Iterate through each partially free page, try to find room */
