@@ -92,7 +92,7 @@ struct slob_block {
 typedef struct slob_block slob_t;
 
 /* Keeps track of the best-fit block */
-struct best_block {
+struct best_block_slob {
 	int object_size;	/* Size of thing we're allocating */
 	slobidx_t block_size;	/* Size of block */
 	slob_t *prev		/* Previous block */
@@ -291,7 +291,7 @@ static void slob_free_pages(void *b, int order)
 /*
  * Finds best fit block in a given slob_page sp.
 */
-static void find_best_fit_block(struct slob_page *sp, struct best_block *best, size_t size, int align)
+static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *best, size_t size, int align)
 {
 	slob_t *prev, *cur, *aligned = NULL;
         int delta = 0, units = SLOB_UNITS(size);
@@ -429,7 +429,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 	struct list_head *slob_list;
 	slob_t *b = NULL, *cur = NULL;
 	unsigned long flags;
-	struct best_block best;
+	struct best_block_slob best;
 	slobidx_t avail;
 	int delta = 0;
 	
