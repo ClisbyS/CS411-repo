@@ -419,7 +419,9 @@ static void *slob_page_alloc(struct slob_page *sp, size_t size, int align)
 static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 {
 	struct slob_page *sp;
-	struct list_head *prev;
+	//struct list_head *prev;
+	slob_t *prev;
+	slob_t *next;
 	struct list_head *slob_list;
 	slob_t *b = NULL, *cur = NULL;
 	unsigned long flags;
@@ -495,7 +497,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 			delta = aligned - cur;
 		}*/
 		//if (avail >= units + delta) { /* room enough? */
-		slob_t *next;
+		
 		cur = best.cur;
 		prev = best.prev;
 		sp = best.page;
