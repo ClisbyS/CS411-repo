@@ -95,10 +95,10 @@ typedef struct slob_block slob_t;
 struct best_block_slob {
 	int object_size;	/* Size of thing we're allocating */
 	slobidx_t block_size;	/* Size of block */
-	slob_t *prev		/* Previous block */
-	slob_t *cur		/* Current block (the best one) */
-	slob_t *next		/* Next block */
-	slob_page *page		/* Page with best fit */
+	slob_t *prev;		/* Previous block */
+	slob_t *cur;		/* Current block (the best one) */
+	slob_t *next;		/* Next block */
+	slob_page *page;		/* Page with best fit */
 };
 
 
@@ -444,9 +444,9 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 	//this could be bad
 	best.block_size = PAGE_SIZE + 1;
 	best.object_size = size;
-	best.(*prev) = NULL;
-	best.*cur = NULL;
-	best.next = 0;
+	best.prev = NULL;
+	best.cur = NULL;
+	best.next = NULL;
 
 	spin_lock_irqsave(&slob_lock, flags);
 	/* Iterate through each partially free page, try to find room */
