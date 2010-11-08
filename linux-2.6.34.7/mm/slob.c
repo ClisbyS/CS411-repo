@@ -124,7 +124,7 @@ struct best_block_slob {
 	slob_t *prev;		/* Previous block */
 	slob_t *cur;		/* Current block (the best one) */
 	slob_t *next;		/* Next block */
-	slob_page *page;		/* Page with best fit */
+	struct slob_page *page;		/* Page with best fit */
 };
 
 /*
