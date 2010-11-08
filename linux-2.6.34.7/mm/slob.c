@@ -474,12 +474,12 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		//	list_move_tail(slob_list, prev->next);
 		//break;
 	}
-	spin_unlock_irqrestore(&slob_lock, flags);
+	//spin_unlock_irqrestore(&slob_lock, flags);
 
 	/* Sommit found */
 	if (best.cur != NULL) {
 		if(align) {
-			aligned = (slob_t *) ALIGN ((unsigned long)cur, align);
+			aligned = (slob_t *) ALIGN ((unsigned long)best.cur, align);
 			delta = aligned - best.cur;
 		}
 		//if (
@@ -526,6 +526,9 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		sp->units -= size;
 		if (!sp->units)
 			clear_slob_page_free(sp);
+
+
+		spin_unlock_irqrestore(&slob_lock, flags);
 		//return cur;
 	//}
 	//if (slob_last(cur))
