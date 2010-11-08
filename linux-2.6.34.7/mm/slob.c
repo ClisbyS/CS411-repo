@@ -101,9 +101,7 @@ struct best_block {
 	slob_page *page		/* Page with best fit */
 };
 
-/* Function prototypes for system calls */
-unsigned int sys_get_slob_amt_claimed();
-unsigned int sys_get_slob_amt_free();
+
 
 /*
  * We use struct page fields to manage some slob allocation aspects,
@@ -149,6 +147,11 @@ static LIST_HEAD(free_slob_large);
  */
 
 static unsigned int pages_alloc = 0;
+
+
+/* Function prototypes for system calls */
+unsigned int sys_get_slob_amt_claimed();
+unsigned int sys_get_slob_amt_free();
 
 /*
  * is_slob_page: True for all slob pages (false for bigblock pages)
@@ -358,7 +361,7 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block *best, s
                         //return cur;
                 }
                 if (slob_last(cur))
-                        return NULL;
+                        return;
         }
 }
 
@@ -422,6 +425,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 	//struct list_head *prev;
 	slob_t *prev;
 	slob_t *next;
+	slob_t *aligned;
 	struct list_head *slob_list;
 	slob_t *b = NULL, *cur = NULL;
 	unsigned long flags;
