@@ -374,7 +374,7 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *be
                         //        clear_slob_page_free(sp);
                         //return cur;
                 }
-		printk( "slob_last(cur) == %d, sp: %lu, cur: %lu\n", slob_last(cur), (unsigned long)sp, (unsigned long)cur );
+		//printk( "slob_last(cur) == %d, sp: %lu, cur: %lu\n", slob_last(cur), (unsigned long)sp, (unsigned long)cur );
                 if ( slob_last(cur) ) {
 			//printk( KERN_ALERT "Hit end of block     " );
                         break;
@@ -566,7 +566,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 				set_slob(prev, slob_units(prev), cur + SLOB_UNITS(size));
 			else
 				sp->free = cur + SLOB_UNITS(size);
-			set_slob(cur + size, avail - SLOB_UNITS(size), next);
+			set_slob(cur + SLOB_UNITS(size), avail - SLOB_UNITS(size), next);
 		}
 
 		sp->units -= SLOB_UNITS(size);
