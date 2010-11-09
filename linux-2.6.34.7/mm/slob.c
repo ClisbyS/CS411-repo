@@ -165,7 +165,7 @@ static inline int is_slob_page(struct slob_page *sp)
 }
 
 static inline void set_slob_page(struct slob_page *sp)
-:{
+{
 	__SetPageSlab((struct page *)sp);
 }
 
