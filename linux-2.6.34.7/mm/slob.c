@@ -319,7 +319,7 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *be
 
 
                         if (delta) { // need to fragment head to align?
-				printk( KERN_ALERT "Best fit has alignment: " );
+				//printk( KERN_ALERT "Best fit has alignment: " );
                                 /*next = slob_next(cur);
                                 set_slob(aligned, avail - delta, next);
                                 set_slob(cur, delta, aligned);
@@ -341,7 +341,7 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *be
                         next = slob_next(cur);
                         if (avail == units + delta ) { /* exact fit? unlink. */
                                 //if (prev)
-					printk( KERN_ALERT "Best fit is exact!\n" );
+					//printk( KERN_ALERT "Best fit is exact!\n" );
 					best->prev = prev;
 					best->cur = cur;
 					best->next = next;
@@ -359,7 +359,7 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *be
                                 //       sp->free = cur + units;
                                 //set_slob(cur + units, avail - units, next);
 				if ((avail - ( units + delta ) ) < (best->block_size - best->object_size)) {
-					printk( KERN_ALERT "Best fit is not exact...\n" );
+					//printk( KERN_ALERT "Best fit is not exact...\n" );
 					best->prev = prev;
                                         best->cur = cur;
                                         best->next = next;
@@ -376,11 +376,11 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *be
                 }
 		//printk( "slob_last(cur) == %d\n", slob_last(cur) );
                 if ( slob_last(cur) ) {
-			printk( KERN_ALERT "Hit end of block     " );
+			//printk( KERN_ALERT "Hit end of block     " );
                         break;
 		}
         }
-	printk( KERN_ALERT "and out of block.\n" );
+	//printk( KERN_ALERT "and out of block.\n" );
 }
 
 /*
