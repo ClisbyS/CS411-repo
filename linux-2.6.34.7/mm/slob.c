@@ -472,9 +472,13 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		//prev_loop = sp->list.prev;
 		//b = slob_page_alloc(sp, size, align);
 		find_best_fit_block(sp, &best, size, align);
-		if((best.block_size - best.object_size) == 0){
+
+
+		/*if((best.block_size - best.object_size) == 0){
 			break;
-		}
+		}*/
+
+
 		//if (!b)
 		//	continue;
 
@@ -488,13 +492,19 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 	}
 	//spin_unlock_irqrestore(&slob_lock, flags);
 
-	/* Sommit found */
 
+	/* Sommit found */
 	if (best.cur != NULL) {
 		printk( KERN_ALERT "best.cur found!\n" );
+
+		cur = best.cur;
+		prev = best.prev;
+		sp = best.page;
+		avail = best.block_size;
+
 		if(align) {
-			aligned = (slob_t *) ALIGN ((unsigned long)best.cur, align);
-			delta = aligned - best.cur;
+			aligned = (slob_t *) ALIGN ((unsigned long)cur, align);
+			delta = aligned - cur;
 		}
 		//if (
 /*slob_t *prev, *cur, *aligned = NULL;
@@ -509,10 +519,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		}*/
 		//if (avail >= units + delta) { /* room enough? */
 		
-		cur = best.cur;
-		prev = best.prev;
-		sp = best.page;
-		avail = best.block_size;
+		
 
 		if (delta) { /* need to fragment head to align? */
 			next = slob_next(cur);
@@ -542,13 +549,16 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 			clear_slob_page_free(sp);
 
 
-		spin_unlock_irqrestore(&slob_lock, flags);
+		
 		//return cur;
 	//}
 	//if (slob_last(cur))
 		//return NULL;
 	}
-	else{		
+
+	spin_unlock_irqrestore(&slob_lock, flags);
+
+	if( best.cur == NULL ) {		
 	/* Not enough space: must allocate a new page */
 		b = slob_new_pages(gfp & ~__GFP_ZERO, 0, node);
 		if (!b)
