@@ -374,7 +374,7 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *be
                         //        clear_slob_page_free(sp);
                         //return cur;
                 }
-		//printk( "slob_last(cur) == %d\n", slob_last(cur) );
+		printk( "slob_last(cur) == %d, sp: %lu, cur: %lu\n", slob_last(cur), (unsigned long)sp, (unsigned long)cur );
                 if ( slob_last(cur) ) {
 			//printk( KERN_ALERT "Hit end of block     " );
                         break;
