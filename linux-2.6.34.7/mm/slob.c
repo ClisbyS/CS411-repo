@@ -298,8 +298,11 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *be
 {
 	slob_t *prev, *cur, *aligned = NULL;
         int delta = 0, units = SLOB_UNITS(size);
+	int i = 0;
 
         for (prev = NULL, cur = sp->free; ; prev = cur, cur = slob_next(cur)) {
+	printk( KERN_ALERT "i=%d\t", i );
+	i++;
         slobidx_t avail = slob_units(cur);
 
                 if (align) {
