@@ -503,6 +503,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		avail = best.block_size;
 
 		if(align) {
+			printk( KERN_ALERT "Require alignment.\n" );
 			aligned = (slob_t *) ALIGN ((unsigned long)cur, align);
 			delta = aligned - cur;
 		}
@@ -522,6 +523,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		
 
 		if (delta) { /* need to fragment head to align? */
+			printk( KERN_ALERT "Fragment w/ delta: %d\n", delta );
 			next = slob_next(cur);
 			set_slob(aligned, avail - delta, next);
 			set_slob(cur, delta, aligned);
@@ -532,11 +534,13 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 
 		next = slob_next(cur);
 		if (avail == SLOB_UNITS(size)) { /* exact fit? unlink. */
+			printk( KERN_ALERT "Exact fit.\n" );
 			if (prev)
 				set_slob(prev, slob_units(prev), next);
 			else
 				sp->free = next;
 		} else { /* fragment */
+			printk( KERN_ALERT "Not exact fit.\n" );
 			if (prev)
 				set_slob(prev, slob_units(prev), cur + SLOB_UNITS(size));
 			else
