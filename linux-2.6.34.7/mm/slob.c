@@ -301,12 +301,6 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *be
 	int i = 0;
 
         for (prev = NULL, cur = sp->free; ; prev = cur, cur = slob_next(cur)) {
-	//printk( KERN_ALERT "i=%d   ", i );
-	i++;
-	/*if ( best->cur == cur ) {
-		printk( KERN_ALERT "Loop around failure   " );
-                break;
-	}*/
         slobidx_t avail = slob_units(cur);
 
                 if (align) {
@@ -317,70 +311,30 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *be
                 if (avail >= units + delta) { /* room enough? */
                         slob_t *next;
 
-
-                        if (delta) { // need to fragment head to align?
-				//printk( KERN_ALERT "Best fit has alignment: " );
-                                /*next = slob_next(cur);
-                                set_slob(aligned, avail - delta, next);
-                                set_slob(cur, delta, aligned);
-                                prev = cur;
-                                cur = aligned;
-                                avail = slob_units(cur);
-				if((avail - units) < (best->block_size - best->object_size)) {
-					best->prev = prev;
-					best->cur = cur;
-					best->next = next;
-					best->object_size = units;
-					best->block_size = avail;
-					best->page = sp;
-				}*/
-				
-                        }
-
-
                         next = slob_next(cur);
                         if (avail == units + delta ) { /* exact fit? unlink. */
-                                //if (prev)
-					//printk( KERN_ALERT "Best fit is exact!\n" );
-					best->prev = prev;
-					best->cur = cur;
-					best->next = next;
-					best->object_size = units;
-					best->block_size = avail;
-					best->page = sp;
-                                	// set_slob(prev, slob_units(prev), next);
-                                //else
-                                  //      sp->free = next;
+				best->prev = prev;
+				best->cur = cur;
+				best->next = next;
+				best->object_size = units;
+				best->block_size = avail;
+				best->page = sp;
                         }
 			else { /* fragment */
-                                //if (prev)
-                                  //      set_slob(prev, slob_units(prev), cur + units);
-                                //else
-                                //       sp->free = cur + units;
-                                //set_slob(cur + units, avail - units, next);
 				if ((avail - ( units + delta ) ) < (best->block_size - best->object_size)) {
-					//printk( KERN_ALERT "Best fit is not exact...\n" );
 					best->prev = prev;
-                                        best->cur = cur;
-                                        best->next = next;
-                                        best->object_size = units;
+                                	best->cur = cur;
+                                	best->next = next;
+                                	best->object_size = units;
                                         best->block_size = avail;
 					best->page = sp;
 				}
                         }
-
-                        //sp->units -= units;
-                        //if (!sp->units)
-                        //        clear_slob_page_free(sp);
-                        //return cur;
                 }
-		//printk( "slob_last(cur) == %d, sp: %lu, cur: %lu\n", slob_last(cur), (unsigned long)sp, (unsigned long)cur );
                 if ( slob_last(cur) ) {
-			//printk( KERN_ALERT "Hit end of block     " );
                         break;
 		}
         }
-	//printk( KERN_ALERT "and out of block.\n" );
 }
 
 /*
@@ -441,7 +395,6 @@ static void *slob_page_alloc(struct slob_page *sp, size_t size, int align)
 static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 {
 	struct slob_page *sp;
-	//struct list_head *prev_loop;
 	slob_t *prev;
 	slob_t *next;
 	slob_t *aligned;
@@ -450,19 +403,10 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 	unsigned long flags;
 	struct best_block_slob best;
 	slobidx_t avail;
-	int delta = 0, numPages = 0, iterPage = 0;
-	//printk( KERN_ALERT "Enter slob_alloc, size: %lu\n", size );
-	//printk( KERN_ALERT "Require alignment: %d.\n", align );
+	int delta = 0;
 	
-	//if (size < SLOB_BREAK1)
-		slob_list = &free_slob_small;
-	//else if (size < SLOB_BREAK2)
-	//	slob_list = &free_slob_medium;
-	//else
-	//	slob_list = &free_slob_large;
+	slob_list = &free_slob_small;
 	
-	
-	//this could be bad
 	best.block_size = PAGE_SIZE + 1;
 	best.object_size = SLOB_UNITS(size);
 	best.prev = NULL;
@@ -488,37 +432,11 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 			continue;
 
 		/* Attempt to alloc */
-		//prev_loop = sp->list.prev;
-		//b = slob_page_alloc(sp, size, align);
 		find_best_fit_block(sp, &best, size, align);
-
-
-		/*if((best.block_size - best.object_size) == 0){
-			break;
-		}*/
-
-
-		//if (!b)
-		//	continue;
-
-		/* Improve fragment distribution and reduce our average
-		 * search time by starting our next search here. (see
-		 * Knuth vol 1, sec 2.5, pg 449) */
-		//if (prev != slob_list->prev &&
-		//		slob_list->next != prev->next)
-		//	list_move_tail(slob_list, prev->next);
-		//break;
 	}
-
-	//printk( KERN_ALERT "Exited for lolololoop. iterPage: %d\n", iterPage );
-
-	//spin_unlock_irqrestore(&slob_lock, flags);
-
 
 	/* Sommit found */
 	if (best.cur != NULL) {
-		//printk( KERN_ALERT "best.cur found!\n" );
-
 		cur = best.cur;
 		prev = best.prev;
 		sp = best.page;
@@ -528,23 +446,8 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 			aligned = (slob_t *) ALIGN ((unsigned long)cur, align);
 			delta = aligned - cur;
 		}
-		//if (
-/*slob_t *prev, *cur, *aligned = NULL;
-	int delta = 0, units = SLOB_UNITS(size);
-
-	for (prev = NULL, cur = sp->free; ; prev = cur, cur = slob_next(cur)) {
-	slobidx_t avail = slob_units(cur);
-
-		if (align) {
-			aligned = (slob_t *)ALIGN((unsigned long)cur, align);
-			delta = aligned - cur;
-		}*/
-		//if (avail >= units + delta) { /* room enough? */
-		
-		
 
 		if (delta) { /* need to fragment head to align? */
-			//printk( KERN_ALERT "Fragment w/ delta: %d\n", delta );
 			next = slob_next(cur);
 			set_slob(aligned, avail - delta, next);
 			set_slob(cur, delta, aligned);
@@ -555,13 +458,11 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 
 		next = slob_next(cur);
 		if (avail == SLOB_UNITS(size)) { /* exact fit? unlink. */
-			//printk( KERN_ALERT "ALLOC Exact fit.\n" );
 			if (prev)
 				set_slob(prev, slob_units(prev), next);
 			else
 				sp->free = next;
 		} else { /* fragment */
-			//printk( KERN_ALERT "ALLOC Not exact fit.\n" );
 			if (prev)
 				set_slob(prev, slob_units(prev), cur + SLOB_UNITS(size));
 			else
@@ -573,20 +474,13 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		if (!sp->units)
 			clear_slob_page_free(sp);
 
-
 		b = cur;
-		//return cur;
-	//}
-	//if (slob_last(cur))
-		//return NULL;
 	}
 
 	spin_unlock_irqrestore(&slob_lock, flags);
 
 	if( best.cur == NULL ) {		
 	/* Not enough space: must allocate a new page */
-		numPages++;
-		//printk( KERN_ALERT "Require moar sandvich! %d\n", numPages );
 		b = slob_new_pages(gfp & ~__GFP_ZERO, 0, node);
 		if (!b)
 			return NULL;
@@ -602,12 +496,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		b = slob_page_alloc(sp, size, align);
 		BUG_ON(!b);
 		spin_unlock_irqrestore(&slob_lock, flags);
-
-		/* Increment number of pages allocated. */
-		//pages_alloc++;
 	}
-
-	
 
 	if (unlikely((gfp & __GFP_ZERO) && b))
 		memset(b, 0, size);
@@ -640,7 +529,7 @@ static void slob_free(void *block, int size)
 		spin_unlock_irqrestore(&slob_lock, flags);
 		clear_slob_page(sp);
 		/* Decrement number of pages allocated. */
-		pages_alloc--; //CHINGAS
+		pages_alloc--;
 		free_slob_page(sp);
 		slob_free_pages(b, 0);
 		return;
