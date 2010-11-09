@@ -301,6 +301,8 @@ static void slob_free_pages(void *b, int order)
 
 /*
  * Finds best fit block in a given slob_page sp.
+ * Checks found block against block in
+ * best_block_slob structure, replacing if better.
  */
 static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *best, size_t size, int align)
 {
@@ -347,7 +349,8 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *be
 
 /*
  * Allocate a slob block within a given slob_page sp.
- * We ended up not changing this method at all.
+ * We ended up not changing this method at all, nor
+ * using it.
  */
 
 static void *slob_page_alloc(struct slob_page *sp, size_t size, int align)
@@ -401,6 +404,9 @@ static void *slob_page_alloc(struct slob_page *sp, size_t size, int align)
 
 /*
  * slob_alloc: entry point into the slob allocator.
+ *
+ * Changed to loop through all pages, looking for pages with enough room
+ * for allocation.
  */
 static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 {
