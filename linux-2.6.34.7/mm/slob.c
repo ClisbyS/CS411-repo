@@ -370,6 +370,7 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *be
                         break;
 		}
         }
+	printk( KERN_ALERT "Exited inner page lOOOOOOOp.\n" );
 }
 
 /*
@@ -421,7 +422,7 @@ static void *slob_page_alloc(struct slob_page *sp, size_t size, int align)
 		if (slob_last(cur))
 			return NULL;
 	}
-	printk( KERN_ALERT "Exited inner page lOOOOOOOp.\n" );
+	
 }
 
 /*
