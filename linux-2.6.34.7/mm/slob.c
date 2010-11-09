@@ -1,5 +1,13 @@
-//CS 411 Group 2
-//Matt Thomas, Matt Martinson, Ian Crawford, Sarah Clisby
+/* CS 411 Group 2
+ * Matt Thomas, Matt Martinson, Ian Crawford, Sarah Clisby
+ * In this program, we added a new method called find_best_fit_block,
+ * this essentially does what the method's name suggests, it searches
+ * for the best fit block in a given page, and saves it to a struct 
+ * called best_block_slob. We also changed slob_alloc so that it 
+ * would loop through the blocks in which we got rid of small, medium,
+ * and large, and made them into one big list. 
+ */
+
 /*
  * SLOB Allocator: Simple List Of Blocks
  *
@@ -293,7 +301,7 @@ static void slob_free_pages(void *b, int order)
 
 /*
  * Finds best fit block in a given slob_page sp.
-*/
+ */
 static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *best, size_t size, int align)
 {
 	slob_t *prev, *cur, *aligned = NULL;
@@ -339,7 +347,9 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *be
 
 /*
  * Allocate a slob block within a given slob_page sp.
+ * We ended up not changing this method at all.
  */
+
 static void *slob_page_alloc(struct slob_page *sp, size_t size, int align)
 {
 	slob_t *prev, *cur, *aligned = NULL;
@@ -435,7 +445,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		find_best_fit_block(sp, &best, size, align);
 	}
 
-	/* Sommit found */
+	/* Best fit found */
 	if (best.cur != NULL) {
 		cur = best.cur;
 		prev = best.prev;
