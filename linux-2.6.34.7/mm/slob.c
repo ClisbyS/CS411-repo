@@ -443,7 +443,6 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 			continue;
 #endif
 		/* Enough room on this page? */
-		iterPage++;
 		if (sp->units < SLOB_UNITS(size))
 			continue;
 
