@@ -452,6 +452,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 	slobidx_t avail;
 	int delta = 0, numPages = 0, iterPage = 0;
 	printk( KERN_ALERT "Enter slob_alloc, size: %lu\n", size );
+	printk( KERN_ALERT "Require alignment: %d.\n", align );
 	
 	//if (size < SLOB_BREAK1)
 		slob_list = &free_slob_small;
@@ -524,7 +525,6 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		avail = best.block_size;
 
 		if(align) {
-			printk( KERN_ALERT "Require alignment.\n" );
 			aligned = (slob_t *) ALIGN ((unsigned long)cur, align);
 			delta = aligned - cur;
 		}
