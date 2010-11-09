@@ -548,12 +548,8 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 	//if (slob_last(cur))
 		//return NULL;
 	}
-			
-		
-
-
+	else{		
 	/* Not enough space: must allocate a new page */
-	if (best.block_size == PAGE_SIZE + 1) {
 		b = slob_new_pages(gfp & ~__GFP_ZERO, 0, node);
 		if (!b)
 			return NULL;
@@ -573,6 +569,9 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		/* Increment number of pages allocated. */
 		//pages_alloc++;
 	}
+
+	
+
 	if (unlikely((gfp & __GFP_ZERO) && b))
 		memset(b, 0, size);
 	return b;
