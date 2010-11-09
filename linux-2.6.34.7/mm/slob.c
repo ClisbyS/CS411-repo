@@ -477,11 +477,12 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		 * If there's a node specification, search for a partial
 		 * page with a matching node id in the freelist.
 		 */
-iterPage++;
+		
 		if (node != -1 && page_to_nid(&sp->page) != node)
 			continue;
 #endif
 		/* Enough room on this page? */
+		iterPage++;
 		if (sp->units < SLOB_UNITS(size))
 			continue;
 
