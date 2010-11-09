@@ -351,7 +351,8 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *be
                                 	// set_slob(prev, slob_units(prev), next);
                                 //else
                                   //      sp->free = next;
-                        } else { /* fragment */
+                        }
+			else { /* fragment */
                                 //if (prev)
                                   //      set_slob(prev, slob_units(prev), cur + units);
                                 //else
@@ -373,7 +374,7 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *be
                         //        clear_slob_page_free(sp);
                         //return cur;
                 }
-		printk( "slob_last(cur) == %d\n", slob_last(cur) );
+		//printk( "slob_last(cur) == %d\n", slob_last(cur) );
                 if ( slob_last(cur) ) {
 			printk( KERN_ALERT "Hit end of block     " );
                         break;
