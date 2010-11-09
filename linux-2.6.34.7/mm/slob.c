@@ -560,6 +560,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 
 	if( best.cur == NULL ) {		
 	/* Not enough space: must allocate a new page */
+		printk( KERN_ALERT "Require moar sandvich!\n" );
 		b = slob_new_pages(gfp & ~__GFP_ZERO, 0, node);
 		if (!b)
 			return NULL;
