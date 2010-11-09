@@ -301,12 +301,12 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *be
 	int i = 0;
 
         for (prev = NULL, cur = sp->free; ; prev = cur, cur = slob_next(cur)) {
-	printk( KERN_ALERT "i=%d   ", i );
+	//printk( KERN_ALERT "i=%d   ", i );
 	i++;
-	if ( best->cur == cur ) {
+	/*if ( best->cur == cur ) {
 		printk( KERN_ALERT "Loop around failure   " );
                 break;
-	}
+	}*/
         slobidx_t avail = slob_units(cur);
 
                 if (align) {
@@ -320,13 +320,13 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *be
 
                         if (delta) { // need to fragment head to align?
 				printk( KERN_ALERT "Best fit has alignment: " );
-                                /*next = slob_next(cur);/*
+                                /*next = slob_next(cur);
                                 set_slob(aligned, avail - delta, next);
-                                set_slob(cur, delta, aligned);*/
-                                /*prev = cur;
+                                set_slob(cur, delta, aligned);
+                                prev = cur;
                                 cur = aligned;
                                 avail = slob_units(cur);
-				/*if((avail - units) < (best->block_size - best->object_size)) {
+				if((avail - units) < (best->block_size - best->object_size)) {
 					best->prev = prev;
 					best->cur = cur;
 					best->next = next;
@@ -373,6 +373,7 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *be
                         //        clear_slob_page_free(sp);
                         //return cur;
                 }
+		printf( "slob_last(cur) == %d\n", slob_last(cur) );
                 if ( slob_last(cur) ) {
 			printk( KERN_ALERT "Hit end of block     " );
                         break;
