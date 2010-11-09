@@ -364,7 +364,7 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *be
                         //return cur;
                 }
                 if (slob_last(cur))
-                        return;
+                        break;
         }
 }
 
