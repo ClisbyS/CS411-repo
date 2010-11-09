@@ -333,6 +333,7 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *be
                         next = slob_next(cur);
                         if (avail == units) { /* exact fit? unlink. */
                                 //if (prev)
+					printk( KERN_ALERT "Best fit is exact!\n" );
 					best->prev = prev;
 					best->cur = cur;
 					best->next = next;
@@ -349,6 +350,7 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *be
                                 //       sp->free = cur + units;
                                 //set_slob(cur + units, avail - units, next);
 				if ((avail - units) < (best->block_size - best->object_size)) {
+					printk( KERN_ALERT "Best fit is not exact...\n" );
 					best->prev = prev;
                                         best->cur = cur;
                                         best->next = next;
@@ -363,8 +365,10 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *be
                         //        clear_slob_page_free(sp);
                         //return cur;
                 }
-                if (slob_last(cur))
+                if (slob_last(cur)) {
+			printk( KERN_ALERT "Hit end of block.\n" );
                         break;
+		}
         }
 }
 
@@ -505,7 +509,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		if(align) {
 			printk( KERN_ALERT "Require alignment.\n" );
 			aligned = (slob_t *) ALIGN ((unsigned long)cur, align);
-			delta = aligned - cur;
+			delta = aligned - cur;printk( KERN_ALERT "Require alignment.\n" );
 		}
 		//if (
 /*slob_t *prev, *cur, *aligned = NULL;
