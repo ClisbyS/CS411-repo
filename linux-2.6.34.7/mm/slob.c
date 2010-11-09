@@ -165,7 +165,7 @@ static inline int is_slob_page(struct slob_page *sp)
 }
 
 static inline void set_slob_page(struct slob_page *sp)
-{
+:{
 	__SetPageSlab((struct page *)sp);
 }
 
@@ -312,20 +312,20 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *be
 
 
                         if (delta) { // need to fragment head to align?
-                                /*next = slob_next(cur);
+                                next = slob_next(cur);/*
                                 set_slob(aligned, avail - delta, next);
-                                set_slob(cur, delta, aligned);
+                                set_slob(cur, delta, aligned);*/
                                 prev = cur;
                                 cur = aligned;
-                                avail = slob_units(cur);*/
-				if((avail - units) < (best->block_size - best->object_size)) {
+                                avail = slob_units(cur);
+				/*if((avail - units) < (best->block_size - best->object_size)) {
 					best->prev = prev;
 					best->cur = cur;
 					best->next = next;
 					best->object_size = units;
 					best->block_size = avail;
 					best->page = sp;
-				}
+				}*/
 				
                         }
 
@@ -447,7 +447,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 	
 	//this could be bad
 	best.block_size = PAGE_SIZE + 1;
-	best.object_size = size;
+	best.object_size = SLOB_UNITS(size);
 	best.prev = NULL;
 	best.cur = NULL;
 	best.next = NULL;
