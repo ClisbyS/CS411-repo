@@ -421,6 +421,7 @@ static void *slob_page_alloc(struct slob_page *sp, size_t size, int align)
 		if (slob_last(cur))
 			return NULL;
 	}
+	printk( KERN_ALERT "Exited inner page lOOOOOOOp.\n" );
 }
 
 /*
@@ -494,6 +495,9 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		//	list_move_tail(slob_list, prev->next);
 		//break;
 	}
+
+	printk( KERN_ALERT "Exited for lolololoop.\n" );
+
 	//spin_unlock_irqrestore(&slob_lock, flags);
 
 
