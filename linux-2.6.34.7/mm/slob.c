@@ -301,8 +301,12 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *be
 	int i = 0;
 
         for (prev = NULL, cur = sp->free; ; prev = cur, cur = slob_next(cur)) {
-	printk( KERN_ALERT "i=%d\t", i );
+	printk( KERN_ALERT "i=%d   ", i );
 	i++;
+	if ( best->cur == cur ) {
+		printk( KERN_ALERT "Loop around failure   " );
+                break;
+	}
         slobidx_t avail = slob_units(cur);
 
                 if (align) {
@@ -353,7 +357,7 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *be
                                 //else
                                 //       sp->free = cur + units;
                                 //set_slob(cur + units, avail - units, next);
-				if ((avail - units) < (best->block_size - best->object_size)) {
+				if ((avail - ( units + delta ) ) < (best->block_size - best->object_size)) {
 					printk( KERN_ALERT "Best fit is not exact...\n" );
 					best->prev = prev;
                                         best->cur = cur;
@@ -369,12 +373,12 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *be
                         //        clear_slob_page_free(sp);
                         //return cur;
                 }
-                if (slob_last(cur)) {
-			//printk( KERN_ALERT "Hit end of block.\n" );
+                if ( slob_last(cur) ) {
+			printk( KERN_ALERT "Hit end of block     " );
                         break;
 		}
         }
-	printk( KERN_ALERT "Exited inner page lOOOOOOOp.\n" );
+	printk( KERN_ALERT "and out of block.\n" );
 }
 
 /*
