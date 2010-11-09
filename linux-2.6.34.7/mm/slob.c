@@ -531,25 +531,25 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		}
 
 		next = slob_next(cur);
-		if (avail == size) { /* exact fit? unlink. */
+		if (avail == SLOB_UNITS(size)) { /* exact fit? unlink. */
 			if (prev)
 				set_slob(prev, slob_units(prev), next);
 			else
 				sp->free = next;
 		} else { /* fragment */
 			if (prev)
-				set_slob(prev, slob_units(prev), cur + size);
+				set_slob(prev, slob_units(prev), cur + SLOB_UNITS(size));
 			else
-				sp->free = cur + size;
-			set_slob(cur + size, avail - size, next);
+				sp->free = cur + SLOB_UNITS(size);
+			set_slob(cur + size, avail - SLOB_UNITS(size), next);
 		}
 
-		sp->units -= size;
+		sp->units -= SLOB_UNITS(size);
 		if (!sp->units)
 			clear_slob_page_free(sp);
 
 
-		
+		b = cur;
 		//return cur;
 	//}
 	//if (slob_last(cur))
