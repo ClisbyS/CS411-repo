@@ -312,10 +312,11 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *be
 
 
                         if (delta) { // need to fragment head to align?
-                                next = slob_next(cur);/*
+				printk( KERN_ALERT "Best fit has alignment: " );
+                                /*next = slob_next(cur);/*
                                 set_slob(aligned, avail - delta, next);
                                 set_slob(cur, delta, aligned);*/
-                                prev = cur;
+                                /*prev = cur;
                                 cur = aligned;
                                 avail = slob_units(cur);
 				/*if((avail - units) < (best->block_size - best->object_size)) {
@@ -331,7 +332,7 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *be
 
 
                         next = slob_next(cur);
-                        if (avail == units) { /* exact fit? unlink. */
+                        if (avail == units + delta ) { /* exact fit? unlink. */
                                 //if (prev)
 					printk( KERN_ALERT "Best fit is exact!\n" );
 					best->prev = prev;
@@ -366,7 +367,7 @@ static void find_best_fit_block(struct slob_page *sp, struct best_block_slob *be
                         //return cur;
                 }
                 if (slob_last(cur)) {
-			printk( KERN_ALERT "Hit end of block.\n" );
+			//printk( KERN_ALERT "Hit end of block.\n" );
                         break;
 		}
         }
@@ -514,7 +515,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		if(align) {
 			printk( KERN_ALERT "Require alignment.\n" );
 			aligned = (slob_t *) ALIGN ((unsigned long)cur, align);
-			delta = aligned - cur;printk( KERN_ALERT "Require alignment.\n" );
+			delta = aligned - cur;
 		}
 		//if (
 /*slob_t *prev, *cur, *aligned = NULL;
@@ -543,13 +544,13 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 
 		next = slob_next(cur);
 		if (avail == SLOB_UNITS(size)) { /* exact fit? unlink. */
-			printk( KERN_ALERT "Exact fit.\n" );
+			printk( KERN_ALERT "ALLOC Exact fit.\n" );
 			if (prev)
 				set_slob(prev, slob_units(prev), next);
 			else
 				sp->free = next;
 		} else { /* fragment */
-			printk( KERN_ALERT "Not exact fit.\n" );
+			printk( KERN_ALERT "ALLOC Not exact fit.\n" );
 			if (prev)
 				set_slob(prev, slob_units(prev), cur + SLOB_UNITS(size));
 			else
