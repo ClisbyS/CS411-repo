@@ -450,7 +450,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 	unsigned long flags;
 	struct best_block_slob best;
 	slobidx_t avail;
-	int delta = 0;
+	int delta = 0, numPages = 0, iterPage = 0;
 	printk( KERN_ALERT "Enter slob_alloc, size: %lu\n", size );
 	
 	//if (size < SLOB_BREAK1)
@@ -477,6 +477,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		 * If there's a node specification, search for a partial
 		 * page with a matching node id in the freelist.
 		 */
+iterPage++;
 		if (node != -1 && page_to_nid(&sp->page) != node)
 			continue;
 #endif
@@ -507,7 +508,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		//break;
 	}
 
-	printk( KERN_ALERT "Exited for lolololoop.\n" );
+	printk( KERN_ALERT "Exited for lolololoop. iterPage: %d\n", iterPage );
 
 	//spin_unlock_irqrestore(&slob_lock, flags);
 
@@ -583,7 +584,8 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 
 	if( best.cur == NULL ) {		
 	/* Not enough space: must allocate a new page */
-		printk( KERN_ALERT "Require moar sandvich!\n" );
+		numPages++;
+		printk( KERN_ALERT "Require moar sandvich! %d\n", numPages );
 		b = slob_new_pages(gfp & ~__GFP_ZERO, 0, node);
 		if (!b)
 			return NULL;
