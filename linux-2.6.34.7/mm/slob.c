@@ -451,8 +451,8 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 	struct best_block_slob best;
 	slobidx_t avail;
 	int delta = 0, numPages = 0, iterPage = 0;
-	printk( KERN_ALERT "Enter slob_alloc, size: %lu\n", size );
-	printk( KERN_ALERT "Require alignment: %d.\n", align );
+	//printk( KERN_ALERT "Enter slob_alloc, size: %lu\n", size );
+	//printk( KERN_ALERT "Require alignment: %d.\n", align );
 	
 	//if (size < SLOB_BREAK1)
 		slob_list = &free_slob_small;
@@ -510,14 +510,14 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		//break;
 	}
 
-	printk( KERN_ALERT "Exited for lolololoop. iterPage: %d\n", iterPage );
+	//printk( KERN_ALERT "Exited for lolololoop. iterPage: %d\n", iterPage );
 
 	//spin_unlock_irqrestore(&slob_lock, flags);
 
 
 	/* Sommit found */
 	if (best.cur != NULL) {
-		printk( KERN_ALERT "best.cur found!\n" );
+		//printk( KERN_ALERT "best.cur found!\n" );
 
 		cur = best.cur;
 		prev = best.prev;
@@ -544,7 +544,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 		
 
 		if (delta) { /* need to fragment head to align? */
-			printk( KERN_ALERT "Fragment w/ delta: %d\n", delta );
+			//printk( KERN_ALERT "Fragment w/ delta: %d\n", delta );
 			next = slob_next(cur);
 			set_slob(aligned, avail - delta, next);
 			set_slob(cur, delta, aligned);
@@ -555,13 +555,13 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 
 		next = slob_next(cur);
 		if (avail == SLOB_UNITS(size)) { /* exact fit? unlink. */
-			printk( KERN_ALERT "ALLOC Exact fit.\n" );
+			//printk( KERN_ALERT "ALLOC Exact fit.\n" );
 			if (prev)
 				set_slob(prev, slob_units(prev), next);
 			else
 				sp->free = next;
 		} else { /* fragment */
-			printk( KERN_ALERT "ALLOC Not exact fit.\n" );
+			//printk( KERN_ALERT "ALLOC Not exact fit.\n" );
 			if (prev)
 				set_slob(prev, slob_units(prev), cur + SLOB_UNITS(size));
 			else
@@ -586,7 +586,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 	if( best.cur == NULL ) {		
 	/* Not enough space: must allocate a new page */
 		numPages++;
-		printk( KERN_ALERT "Require moar sandvich! %d\n", numPages );
+		//printk( KERN_ALERT "Require moar sandvich! %d\n", numPages );
 		b = slob_new_pages(gfp & ~__GFP_ZERO, 0, node);
 		if (!b)
 			return NULL;
