@@ -435,7 +435,7 @@ static void *slob_alloc(size_t size, gfp_t gfp, int align, int node)
 	struct best_block_slob best;
 	slobidx_t avail;
 	int delta = 0;
-	printk( KERN_ALERT "Enter slob_alloc\n" );
+	printk( KERN_ALERT "Enter slob_alloc, size: %lu\n", size );
 	
 	//if (size < SLOB_BREAK1)
 		slob_list = &free_slob_small;
