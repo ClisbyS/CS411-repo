@@ -49,6 +49,16 @@ config DEBUG_CFQ_IOSCHED
 	  Enable CFQ IO scheduling debugging in CFQ. Currently it makes
 	  blktrace output more verbose.
 
+config IOSCHED_LOOK
+	tristate "LOOK I/O scheduler"
+	default y
+	---help---
+	  The LOOK I/O scheduler keeps track of the position of the disk
+	  head and services the next larger block number when the head is
+	  moving up, and the next lowest block number when the head is
+	  moving down.  If the highest or lowest block number is reached,
+	  the head reverses direction.
+
 choice
 	prompt "Default I/O scheduler"
 	default DEFAULT_CFQ
@@ -61,6 +71,9 @@ choice
 
 	config DEFAULT_CFQ
 		bool "CFQ" if IOSCHED_CFQ=y
+
+	config DEFAULT_LOOK
+		bool "LOOK" if IOSCHED_LOOK=y
 
 	config DEFAULT_NOOP
 		bool "No-op"
