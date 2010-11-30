@@ -78,16 +78,16 @@ static int look_dispatch(struct request_queue *q, int force)
 		else{ // Disk head descending
 			list_for_each_prev(pos, &nd->queue){
 				tmp = list_entry(pos, struct request, queuelist);
-				if(tmp->bio_bi_sector <= nd->cur_sec){
+				if(tmp->bio->bi_sector <= nd->cur_sec){
 					nd->cur_sec = blk_rq_pos(tmp);
 					break;
 				}
 			}
 		}
 
-		if(nd->head_direction == 1 &&  tmp->queuelist.next == nd->queue)
+		if(nd->head_direction == 1 &&  tmp->queuelist.next == &nd->queue)
 			nd->head_direction = 0;
-		else if(nd->head_direction == 0 && tmp->queuelist.prev == nd->queue)
+		else if(nd->head_direction == 0 && tmp->queuelist.prev == &nd->queue)
 			nd->head_direction = 1;
 
 		list_del_init(&tmp->queuelist);
@@ -121,9 +121,9 @@ static void look_add_request(struct request_queue *q, struct request *rq)
 	
 	//try to add request before next largest
 	list_for_each(pos, &nd->queue){
-		tmp = list_entry(pos, struct request, queueList );
+		tmp = list_entry(pos, struct request, queuelist );
 		if(tmp->bio->bi_sector < tmp->bio->bi_sector){ //What?
-			list_add_tail(&rq->queue_list, pos);
+			list_add_tail(&rq->queuelist, pos);
 			inserted = 1;	
 			break;
 		}
