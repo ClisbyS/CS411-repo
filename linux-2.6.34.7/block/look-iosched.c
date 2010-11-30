@@ -16,6 +16,19 @@
 #include <linux/slab.h>
 #include <linux/init.h>
 
+/**
+ * struct look_data - Tracks request list, disk head position and
+ * direction.
+ *
+ * @queue: The request list.
+ * @cur_sec: The current disk head position.
+ * @head_direction: The current direction of the disk head.
+ * 
+ * This structure keeps track of the request list, as well as the
+ * current position of the disk head and the direction (increasing
+ * block number or decreasing block number) the disk head is
+ * traveling.
+ */
 struct look_data {
 	struct list_head queue;
 	//struct list_head *head_entry;
@@ -23,16 +36,26 @@ struct look_data {
 	int head_direction;
 };
 
-/*
-* is this needed?
-*/
-//
-//static void look_merged_requests(struct request_queue *q, struct request *rq,
-//				 struct request *next)
-//{
-//	list_del_init(&next->queuelist);
-//}
+static void look_merged_requests(struct request_queue *q, struct request *rq,
+				 struct request *next)
+{
+	list_del_init(&next->queuelist);
+}
 
+/**
+ * look_dispatch - Dispatches next request from request list.
+ *
+ * @*q - the request list
+ * @force - ???
+ *
+ * This function checks the direction of disk head travel and
+ * dispatches the next request in the list. If the disk head is
+ * ascending, the request with the next highest block number is
+ * dispatched. If the disk head is descending, the request with the
+ * next lowest block number is dispatched. If the disk head has
+ * dispatched the highest or lowest request, the disk head
+ * direction is reversed.
+ */
 static int look_dispatch(struct request_queue *q, int force)
 {
 	struct list_head *pos;
@@ -43,7 +66,7 @@ static int look_dispatch(struct request_queue *q, int force)
 		//struct request *rq;
 		//pick from head instead (rhymes)
 		//rq = list_entry(nd->queue.next, struct request, queuelist);
-		if(nd->head_direction == 1){ //ascending
+		if(nd->head_direction == 1){ // Disk head ascending
 			list_for_each(pos, &nd->queue){
 				tmp = list_entry(pos, struct request, queuelist);
 				if(tmp->bio->bi_sector >= nd->cur_sec){
@@ -52,7 +75,7 @@ static int look_dispatch(struct request_queue *q, int force)
 				}
 			}	
 		}
-		else{ //descending
+		else{ // Disk head descending
 			list_for_each_prev(pos, &nd->queue){
 				tmp = list_entry(pos, struct request, queuelist);
 				if(tmp->bio_bi_sector <= nd->cur_sec){
@@ -74,6 +97,17 @@ static int look_dispatch(struct request_queue *q, int force)
 	return 0;
 }
 
+/**
+ * look_add_request - Adds a new request to the request list.
+ *
+ * @*q - The request list.
+ * @*rq - The request to add.
+ * 
+ * This function adds a new request to the list of requests. The
+ * block number of the new request is compared to the block numbers
+ * of list entries, and the new request placed in the correct order.
+ * This ensures that the list is sorted by increasing block number.
+ */
 static void look_add_request(struct request_queue *q, struct request *rq)
 {
 	struct list_head *pos;
@@ -88,7 +122,7 @@ static void look_add_request(struct request_queue *q, struct request *rq)
 	//try to add request before next largest
 	list_for_each(pos, &nd->queue){
 		tmp = list_entry(pos, struct request, queueList );
-		if(tmp->bio->bi_sector < tmp->bio->bi_sector){
+		if(tmp->bio->bi_sector < tmp->bio->bi_sector){ //What?
 			list_add_tail(&rq->queue_list, pos);
 			inserted = 1;	
 			break;
@@ -100,6 +134,11 @@ static void look_add_request(struct request_queue *q, struct request *rq)
 		list_add_tail(&rq->queuelist, &nd->queue);	
 }
 
+/**
+ * look_queue_empty - Checks if there are no more requests in the list.
+ *
+ * @*q - The request list.
+ */
 static int look_queue_empty(struct request_queue *q)
 {
 	struct look_data *nd = q->elevator->elevator_data;
@@ -107,6 +146,12 @@ static int look_queue_empty(struct request_queue *q)
 	return list_empty(&nd->queue);
 }
 
+/**
+ * look_former_request - Returns the previous request in the list.
+ * 
+ * @*q - The request list.
+ * @*rq - The current request.
+ */
 static struct request *
 look_former_request(struct request_queue *q, struct request *rq)
 {
@@ -117,6 +162,12 @@ look_former_request(struct request_queue *q, struct request *rq)
 	return list_entry(rq->queuelist.prev, struct request, queuelist);
 }
 
+/**
+ * look_latter_request - Returns the next request in the list.
+ *
+ * @*q - The request list.
+ * @*rq - The current request.
+ */
 static struct request *
 look_latter_request(struct request_queue *q, struct request *rq)
 {
@@ -127,6 +178,15 @@ look_latter_request(struct request_queue *q, struct request *rq)
 	return list_entry(rq->queuelist.next, struct request, queuelist);
 }
 
+/**
+ * look_init_queue - Initializes the request list and disk head.
+ * 
+ * @*q - The request list.
+ * 
+ * Allocates memory for the request list and initializes the disk
+ * head position and direction (default is ascending from block
+ * number 0).
+ */
 static void *look_init_queue(struct request_queue *q)
 {
 	struct look_data *nd;
@@ -144,6 +204,11 @@ static void *look_init_queue(struct request_queue *q)
 	return nd;
 }
 
+/**
+ * look_exit_queue - Deallocates request list and disk head.
+ * 
+ * @*e - Elevator queue.
+ */
 static void look_exit_queue(struct elevator_queue *e)
 {
 	struct look_data *nd = e->elevator_data;
