@@ -81,13 +81,8 @@ static int look_dispatch(struct request_queue *q, int force)
 			list_for_each_prev(pos, &nd->queue){
 				tmp = list_entry(pos, struct request, queuelist);
 				if(tmp->bio->bi_sector <= nd->cur_sec){
-					nd->cur_sec = blk_r// Test printk's
-		if( (int)tmp->bio->bi_rw % 2 == 0 ) { // It's a read
-			printk( KERN_CRIT "[LOOK] dsp R %lu", tmp->bio->bi_sector );
-		}
-		else { // It's a write
-			printk( KERN_CRIT "[LOOK] dsp W %lu", tmp->bio->bi_sector );
-		}q_pos(tmp);
+					nd->cur_sec = blk_r
+					q_pos(tmp);
 					break;
 				}
 			}
