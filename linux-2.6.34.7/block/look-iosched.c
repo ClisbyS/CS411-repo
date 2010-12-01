@@ -136,15 +136,15 @@ static void look_add_request(struct request_queue *q, struct request *rq)
 	
 	//try to add request before next largest
 
-	if( list_empty(&nd->queue) ){
-	list_for_each(pos, &nd->queue){
-		tmp = list_entry(pos, struct request, queuelist );
-		if(rq->bio->bi_sector < tmp->bio->bi_sector){ //less "What?"
-			list_add_tail(&rq->queuelist, pos);
-			inserted = 1;	
-			break;
+	if( !list_empty(&nd->queue) ){
+		list_for_each(pos, &nd->queue){
+			tmp = list_entry(pos, struct request, queuelist );
+			if(rq->bio->bi_sector < tmp->bio->bi_sector){ //less "What?"
+				list_add_tail(&rq->queuelist, pos);
+				inserted = 1;	
+				break;
+			}
 		}
-	}
 	}
 	//request should be the new largest, add it
 	if(!inserted)
