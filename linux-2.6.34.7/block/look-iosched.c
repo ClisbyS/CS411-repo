@@ -135,6 +135,8 @@ static void look_add_request(struct request_queue *q, struct request *rq)
 	//list_add_tail(&rq->queuelist, &nd->queue);
 	
 	//try to add request before next largest
+
+	if( list_empty(&nd->queue) ){
 	list_for_each(pos, &nd->queue){
 		tmp = list_entry(pos, struct request, queuelist );
 		if(rq->bio->bi_sector < tmp->bio->bi_sector){ //less "What?"
@@ -143,7 +145,7 @@ static void look_add_request(struct request_queue *q, struct request *rq)
 			break;
 		}
 	}
-
+	}
 	//request should be the new largest, add it
 	if(!inserted)
 		list_add_tail(&rq->queuelist, &nd->queue);
