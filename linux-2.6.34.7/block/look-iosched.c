@@ -82,7 +82,6 @@ static int look_dispatch(struct request_queue *q, int force)
 				tmp = list_entry(pos, struct request, queuelist);
 				if(tmp->bio->bi_sector <= nd->cur_sec){
 					nd->cur_sec = blk_rq_pos(tmp);
-					q_pos(tmp);
 					break;
 				}
 			}
