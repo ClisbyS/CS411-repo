@@ -62,6 +62,8 @@ static int look_dispatch(struct request_queue *q, int force)
 	struct request *tmp;
 	struct look_data *nd = q->elevator->elevator_data;
 
+	printk( KERN_CRIT "Entered dsp request function LOOK" );
+
 	if (!list_empty(&nd->queue)) {
 		//struct request *rq;
 		//pick from head instead (rhymes)
@@ -117,11 +119,13 @@ static int look_dispatch(struct request_queue *q, int force)
  */
 static void look_add_request(struct request_queue *q, struct request *rq)
 {
-	struct list_head *pos;
+	struct list_head *pos;I
 	struct request *tmp;
 	struct look_data *nd = q->elevator->elevator_data;
 
 	int inserted = 0;
+
+	printk( KERN_CRIT "Entered add request function LOOK" );
 
 	//sort entry into list
 	//list_add_tail(&rq->queuelist, &nd->queue);
