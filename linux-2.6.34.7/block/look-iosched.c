@@ -81,7 +81,7 @@ static int look_dispatch(struct request_queue *q, int force)
 			list_for_each_prev(pos, &nd->queue){
 				tmp = list_entry(pos, struct request, queuelist);
 				if(tmp->bio->bi_sector <= nd->cur_sec){
-					nd->cur_sec = blk_r
+					nd->cur_sec = blk_rq_pos(tmp);
 					q_pos(tmp);
 					break;
 				}
@@ -97,10 +97,10 @@ static int look_dispatch(struct request_queue *q, int force)
 		elv_dispatch_add_tail(q, tmp);
 		// Test printk's
 		if( (int)tmp->bio->bi_rw % 2 == 0 ) { // It's a read
-			printk( KERN_CRIT "[LOOK] dsp R %ld", tmp->bio->bi_sector );
+			printk( KERN_CRIT "[LOOK] dsp R %lu", tmp->bio->bi_sector );
 		}
 		else { // It's a write
-			printk( KERN_CRIT "[LOOK] dsp W %ld", tmp->bio->bi_sector );
+			printk( KERN_CRIT "[LOOK] dsp W %lu", tmp->bio->bi_sector );
 		}
 		return 1;
 	}
@@ -120,7 +120,7 @@ static int look_dispatch(struct request_queue *q, int force)
  */
 static void look_add_request(struct request_queue *q, struct request *rq)
 {
-	struct list_head *pos;I
+	struct list_head *pos;
 	struct request *tmp;
 	struct look_data *nd = q->elevator->elevator_data;
 
@@ -147,10 +147,10 @@ static void look_add_request(struct request_queue *q, struct request *rq)
 
 	// Test printk's
 	if( (int)tmp->bio->bi_rw % 2 == 0 ) { // It's a read
-		printk( KERN_CRIT "[LOOK] add R %ld", rq->bio->bi_sector );
+		printk( KERN_CRIT "[LOOK] add R %lu", rq->bio->bi_sector );
 	}
 	else { // It's a write
-		printk( KERN_CRIT "[LOOK] add W %ld", rq->bio->bi_sector );
+		printk( KERN_CRIT "[LOOK] add W %lu", rq->bio->bi_sector );
 	}
 
 }
