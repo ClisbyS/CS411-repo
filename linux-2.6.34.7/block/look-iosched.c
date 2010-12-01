@@ -61,6 +61,7 @@ static int look_dispatch(struct request_queue *q, int force)
 	struct list_head *pos;
 	struct request *tmp = NULL;
 	struct look_data *nd = q->elevator->elevator_data;
+	int flip = 1;
 
 	printk( KERN_CRIT "Entered dsp request function LOOK" );
 	printk( KERN_DEBUG "Entered dsp request function LOOK" );
@@ -70,6 +71,30 @@ static int look_dispatch(struct request_queue *q, int force)
 		//struct request *rq;
 		//pick from head instead (rhymes)
 		//rq = list_entry(nd->queue.next, struct request, queuelist);
+
+		if(nd->head_direction == 1){ // Disk head ascending
+			list_for_each(pos, &nd->queue){
+				tmp = list_entry(pos, struct request, queuelist);
+				if(tmp->bio->bi_sector >= nd->cur_sec){	
+					flip = 0;				
+					break;
+				}
+			}	
+		}
+		else{ // Disk head descending
+			list_for_each_prev(pos, &nd->queue){
+				tmp = list_entry(pos, struct request, queuelist);
+				if(tmp->bio->bi_sector <= nd->cur_sec){
+					flip = 0;
+					break;
+				}
+			}
+		}		
+
+		if(flip)
+			nd->head_direction?nd->head_direction = 0:nd->head_direction = 1;
+			
+
 		if(nd->head_direction == 1){ // Disk head ascending
 			list_for_each(pos, &nd->queue){
 				tmp = list_entry(pos, struct request, queuelist);
