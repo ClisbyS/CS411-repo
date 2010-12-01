@@ -59,7 +59,7 @@ static void look_merged_requests(struct request_queue *q, struct request *rq,
 static int look_dispatch(struct request_queue *q, int force)
 {
 	struct list_head *pos;
-	struct request *tmp;
+	struct request *tmp = NULL;
 	struct look_data *nd = q->elevator->elevator_data;
 
 	printk( KERN_CRIT "Entered dsp request function LOOK" );
@@ -122,7 +122,7 @@ static int look_dispatch(struct request_queue *q, int force)
 static void look_add_request(struct request_queue *q, struct request *rq)
 {
 	struct list_head *pos;
-	struct request *tmp;
+	struct request *tmp = NULL;
 	struct look_data *nd = q->elevator->elevator_data;
 
 	int inserted = 0;
