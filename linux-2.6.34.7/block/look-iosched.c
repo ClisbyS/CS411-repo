@@ -140,7 +140,7 @@ static void look_add_request(struct request_queue *q, struct request *rq)
 		list_for_each(pos, &nd->queue){
 			tmp = list_entry(pos, struct request, queuelist );
 			if(rq->bio->bi_sector < tmp->bio->bi_sector){ //less "What?"
-				list_add_tail(&rq->queuelist, pos);
+				list_add_tail(&rq->queuelist, &tmp->queuelist);
 				inserted = 1;	
 				break;
 			}
