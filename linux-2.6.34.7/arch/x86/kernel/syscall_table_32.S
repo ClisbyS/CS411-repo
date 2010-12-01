@@ -337,5 +337,3 @@ ENTRY(sys_call_table)
 	.long sys_rt_tgsigqueueinfo	/* 335 */
 	.long sys_perf_event_open
 	.long sys_recvmmsg
-	.long sys_get_slob_amt_claimed
-	.long sys_get_slob_amt_free
