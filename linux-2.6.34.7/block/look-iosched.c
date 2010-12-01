@@ -211,6 +211,8 @@ static void *look_init_queue(struct request_queue *q)
 {
 	struct look_data *nd;
 
+	printk( "[LOOK] Init Queue" );
+
 	nd = kmalloc_node(sizeof(*nd), GFP_KERNEL, q->node);
 	if (!nd)
 		return NULL;
@@ -232,6 +234,8 @@ static void *look_init_queue(struct request_queue *q)
 static void look_exit_queue(struct elevator_queue *e)
 {
 	struct look_data *nd = e->elevator_data;
+
+	printk( "[LOOK] Remove Queue" );
 
 	BUG_ON(!list_empty(&nd->queue));
 	kfree(nd);
