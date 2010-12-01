@@ -92,6 +92,13 @@ static int look_dispatch(struct request_queue *q, int force)
 
 		list_del_init(&tmp->queuelist);
 		elv_dispatch_add_tail(q, tmp);
+		// Test printk's
+		if( (int)tmp->bio->bi_rw % 2 == 0 ) { // It's a read
+			printk( KERN_CRIT "[LOOK] dsp R %lu", tmp->bio->bi_sector );
+		}
+		else { // It's a write
+			printk( KERN_CRIT "[LOOK] dsp W %lu", tmp->bio->bi_sector );
+		}
 		return 1;
 	}
 	return 0;
@@ -122,7 +129,7 @@ static void look_add_request(struct request_queue *q, struct request *rq)
 	//try to add request before next largest
 	list_for_each(pos, &nd->queue){
 		tmp = list_entry(pos, struct request, queuelist );
-		if(tmp->bio->bi_sector < tmp->bio->bi_sector){ //What?
+		if(rq->bio->bi_sector < tmp->bio->bi_sector){ //less "What?"
 			list_add_tail(&rq->queuelist, pos);
 			inserted = 1;	
 			break;
@@ -131,7 +138,16 @@ static void look_add_request(struct request_queue *q, struct request *rq)
 
 	//request should be the new largest, add it
 	if(!inserted)
-		list_add_tail(&rq->queuelist, &nd->queue);	
+		list_add_tail(&rq->queuelist, &nd->queue);
+
+	// Test printk's
+	if( (int)tmp->bio->bi_rw % 2 == 0 ) { // It's a read
+		printk( KERN_CRIT "[LOOK] add R %lu", rq->bio->bi_sector );
+	}
+	else { // It's a write
+		printk( KERN_CRIT "[LOOK] add W %lu", rq->bio->bi_sector );
+	}
+
 }
 
 /**
