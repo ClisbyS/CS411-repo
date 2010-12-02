@@ -10,6 +10,9 @@
 
 struct look_data {
 	struct list_head queue;
+	sector_t cur_pos;
+	unsigned int dir;	//1 for up
+				//0 for down
 };
 
 static void look_merged_requests(struct request_queue *q, struct request *rq,
@@ -18,27 +21,36 @@ static void look_merged_requests(struct request_queue *q, struct request *rq,
 	list_del_init(&next->queuelist);
 }
 
+/*
+ * Loop through request queue, dispatch the correct request.
+ */
 static int look_dispatch(struct request_queue *q, int force)
 {
 	struct look_data *nd = q->elevator->elevator_data;
 	
-	printk( "[LOOK] Entering Dispatch" );
+	printk( "[LOOK] Entering Dispatch\n" );
 
 	if (!list_empty(&nd->queue)) {
 		struct request *rq;
 		rq = list_entry(nd->queue.next, struct request, queuelist);
 		list_del_init(&rq->queuelist);
+		nd->cur_pos = blk_rq_pos(rq) + blk_rq_sectors(rq);
+		printk( "[LOOK] Cur Pos is %llu\n", nd->cur_pos );
 		elv_dispatch_sort(q, rq);
 		return 1;
 	}
 	return 0;
 }
 
+/*
+ * Leaving add request as it was. Dispatch will search through the 
+ * request queue to find the next request to dispatch.
+ */
 static void look_add_request(struct request_queue *q, struct request *rq)
 {
 	struct look_data *nd = q->elevator->elevator_data;
 
-	printk( "[LOOK] Entering Add Request" );
+	printk( "[LOOK] Entering Add Request\n" );
 
 	list_add_tail(&rq->queuelist, &nd->queue);
 }
@@ -78,6 +90,8 @@ static void *look_init_queue(struct request_queue *q)
 	if (!nd)
 		return NULL;
 	INIT_LIST_HEAD(&nd->queue);
+	nd->cur_pos = 0;
+	nd->direction = 1;	//Initially going up!
 	return nd;
 }
 
