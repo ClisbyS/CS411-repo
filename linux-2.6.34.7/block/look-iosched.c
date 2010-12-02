@@ -45,7 +45,7 @@ static int look_dispatch(struct request_queue *q, int force)
 			//rq = list_entry(nd->queue.next, struct request, queuelist);
 		
 			// Is this request the better higher one?
-			if( blk_rq_pos( rq ) > nd->cur_pos ) {
+			if( blk_rq_pos( rq ) >= nd->cur_pos ) {
 				if( higher != NULL ) {
 					if( blk_rq_pos( rq ) < blk_rq_pos( higher ) ) {
 						higher = rq;
@@ -57,7 +57,7 @@ static int look_dispatch(struct request_queue *q, int force)
 			}
 			
 			// Is this request the better lower one?
-			if( blk_rq_pos( rq ) < nd->cur_pos ) {
+			if( blk_rq_pos( rq ) <= nd->cur_pos ) {
 				if( lower != NULL ) {
 					if( blk_rq_pos( rq ) > blk_rq_pos( lower ) ) {
 						lower = rq;
