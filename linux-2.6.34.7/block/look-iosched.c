@@ -1,13 +1,5 @@
 /*
- * Team 2
- * Ian Crawford
- * Sarah Clisby
- * Matt Martinson
- * Matt Thomas
- *
- * DESCRIPTION OF CHANGES HERE
- *
- * elevator look
+ * Elevator Look, names go next
  */
 #include <linux/blkdev.h>
 #include <linux/elevator.h>
@@ -16,24 +8,8 @@
 #include <linux/slab.h>
 #include <linux/init.h>
 
-/**
- * struct look_data - Tracks request list, disk head position and
- * direction.
- *
- * @queue: The request list.
- * @cur_sec: The current disk head position.
- * @head_direction: The current direction of the disk head.
- * 
- * This structure keeps track of the request list, as well as the
- * current position of the disk head and the direction (increasing
- * block number or decreasing block number) the disk head is
- * traveling.
- */
 struct look_data {
 	struct list_head queue;
-	//struct list_head *head_entry;
-	sector_t cur_sec;
-	int head_direction;
 };
 
 static void look_merged_requests(struct request_queue *q, struct request *rq,
@@ -42,159 +18,31 @@ static void look_merged_requests(struct request_queue *q, struct request *rq,
 	list_del_init(&next->queuelist);
 }
 
-/**
- * look_dispatch - Dispatches next request from request list.
- *
- * @*q - the request list
- * @force - ???
- *
- * This function checks the direction of disk head travel and
- * dispatches the next request in the list. If the disk head is
- * ascending, the request with the next highest block number is
- * dispatched. If the disk head is descending, the request with the
- * next lowest block number is dispatched. If the disk head has
- * dispatched the highest or lowest request, the disk head
- * direction is reversed.
- */
 static int look_dispatch(struct request_queue *q, int force)
 {
-	struct list_head *pos;
-	struct request *tmp = NULL;
 	struct look_data *nd = q->elevator->elevator_data;
-	int flip = 1;
-
-	printk( KERN_CRIT "Entered dsp request function LOOK" );
-	printk( KERN_DEBUG "Entered dsp request function LOOK" );
-	printk( "Entered dsp request function LOOK" );
+	
+	printk( "[LOOK] Entering Dispatch" );
 
 	if (!list_empty(&nd->queue)) {
-		//struct request *rq;
-		//pick from head instead (rhymes)
-		//rq = list_entry(nd->queue.next, struct request, queuelist);
-
-		if(nd->head_direction == 1){ // Disk head ascending
-			list_for_each(pos, &nd->queue){
-				tmp = list_entry(pos, struct request, queuelist);
-				if(tmp->bio->bi_sector >= nd->cur_sec){	
-					flip = 0;				
-					break;
-				}
-			}	
-		}
-		else{ // Disk head descending
-			list_for_each_prev(pos, &nd->queue){
-				tmp = list_entry(pos, struct request, queuelist);
-				if(tmp->bio->bi_sector <= nd->cur_sec){
-					flip = 0;
-					break;
-				}
-			}
-		}		
-
-		if(flip && nd->head_direction == 1)
-			nd->head_direction = 0;
-		else if(flip)
-			nd->head_direction = 1;
-		
-			
-
-		if(nd->head_direction == 1){ // Disk head ascending
-			list_for_each(pos, &nd->queue){
-				tmp = list_entry(pos, struct request, queuelist);
-				if(tmp->bio->bi_sector >= nd->cur_sec){
-					nd->cur_sec = blk_rq_pos(tmp) + blk_rq_sectors(tmp);
-					break;
-				}
-			}	
-		}
-		else{ // Disk head descending
-			list_for_each_prev(pos, &nd->queue){
-				tmp = list_entry(pos, struct request, queuelist);
-				if(tmp->bio->bi_sector <= nd->cur_sec){
-					nd->cur_sec = blk_rq_pos(tmp);
-					break;
-				}
-			}
-		}
-
-		if(nd->head_direction == 1 &&  tmp->queuelist.next == &nd->queue)
-			nd->head_direction = 0;
-		else if(nd->head_direction == 0 && tmp->queuelist.prev == &nd->queue)
-			nd->head_direction = 1;
-
-		list_del_init(&tmp->queuelist);
-		elv_dispatch_add_tail(q, tmp);
-		// Test printk's
-		if( (int)tmp->bio->bi_rw % 2 == 0 ) { // It's a read
-			printk( KERN_CRIT "[LOOK] dsp R %llu", tmp->bio->bi_sector );
-		}
-		else { // It's a write
-			printk( KERN_CRIT "[LOOK] dsp W %llu", tmp->bio->bi_sector );
-		}
+		struct request *rq;
+		rq = list_entry(nd->queue.next, struct request, queuelist);
+		list_del_init(&rq->queuelist);
+		elv_dispatch_sort(q, rq);
 		return 1;
 	}
 	return 0;
 }
 
-/**
- * look_add_request - Adds a new request to the request list.
- *
- * @*q - The request list.
- * @*rq - The request to add.
- * 
- * This function adds a new request to the list of requests. The
- * block number of the new request is compared to the block numbers
- * of list entries, and the new request placed in the correct order.
- * This ensures that the list is sorted by increasing block number.
- */
 static void look_add_request(struct request_queue *q, struct request *rq)
 {
-	struct list_head *pos;
-	struct request *tmp = NULL;
 	struct look_data *nd = q->elevator->elevator_data;
 
-	int inserted = 0;
+	printk( "[LOOK] Entering Add Request" );
 
-	printk( KERN_CRIT "Entered add request function LOOK" );
-	printk( KERN_DEBUG "Entered add request function LOOK" );
-	printk( "Entered add request function LOOK" );
-
-	//sort entry into list
-	//list_add_tail(&rq->queuelist, &nd->queue);
-	
-	//try to add request before next largest
-
-	if( !list_empty(&nd->queue) ){
-		list_for_each(pos, &nd->queue){
-			tmp = list_entry(pos, struct request, queuelist );
-			if(rq->bio->bi_sector < tmp->bio->bi_sector){ //less "What?"
-				list_add_tail(&rq->queuelist, &tmp->queuelist);
-				inserted = 1;	
-				break;
-			}
-		}
-	}
-	//request should be the new largest, add it
-	if(!inserted)
-		list_add_tail(&rq->queuelist, &nd->queue);
-
-	// Test printk's
-	if( (int)tmp->bio->bi_rw % 2 == 0 ) { // It's a read
-		printk( KERN_CRIT "[LOOK] add R %llu", rq->bio->bi_sector );
-	}
-	else { // It's a write
-		printk( KERN_CRIT "[LOOK] add W %llu", rq->bio->bi_sector );
-	}
-
-
-	kfree(tmp);
+	list_add_tail(&rq->queuelist, &nd->queue);
 }
 
-/**
- * look_queue_empty - Checks if there are no more requests in the list.
- *
- * @*q - The request list.
- */
 static int look_queue_empty(struct request_queue *q)
 {
 	struct look_data *nd = q->elevator->elevator_data;
@@ -202,12 +50,6 @@ static int look_queue_empty(struct request_queue *q)
 	return list_empty(&nd->queue);
 }
 
-/**
- * look_former_request - Returns the previous request in the list.
- * 
- * @*q - The request list.
- * @*rq - The current request.
- */
 static struct request *
 look_former_request(struct request_queue *q, struct request *rq)
 {
@@ -218,12 +60,6 @@ look_former_request(struct request_queue *q, struct request *rq)
 	return list_entry(rq->queuelist.prev, struct request, queuelist);
 }
 
-/**
- * look_latter_request - Returns the next request in the list.
- *
- * @*q - The request list.
- * @*rq - The current request.
- */
 static struct request *
 look_latter_request(struct request_queue *q, struct request *rq)
 {
@@ -234,44 +70,20 @@ look_latter_request(struct request_queue *q, struct request *rq)
 	return list_entry(rq->queuelist.next, struct request, queuelist);
 }
 
-/**
- * look_init_queue - Initializes the request list and disk head.
- * 
- * @*q - The request list.
- * 
- * Allocates memory for the request list and initializes the disk
- * head position and direction (default is ascending from block
- * number 0).
- */
 static void *look_init_queue(struct request_queue *q)
 {
 	struct look_data *nd;
-
-	printk( "[LOOK] Init Queue" );
 
 	nd = kmalloc_node(sizeof(*nd), GFP_KERNEL, q->node);
 	if (!nd)
 		return NULL;
 	INIT_LIST_HEAD(&nd->queue);
-
-	nd->cur_sec = 0;
-	// Ascending = 1
-	// Descending = 0
-	nd->head_direction = 1;
-
 	return nd;
 }
 
-/**
- * look_exit_queue - Deallocates request list and disk head.
- * 
- * @*e - Elevator queue.
- */
 static void look_exit_queue(struct elevator_queue *e)
 {
 	struct look_data *nd = e->elevator_data;
-
-	printk( "[LOOK] Remove Queue" );
 
 	BUG_ON(!list_empty(&nd->queue));
 	kfree(nd);
@@ -308,6 +120,7 @@ module_init(look_init);
 module_exit(look_exit);
 
 
-MODULE_AUTHOR("Ian Crawford, Sarah Clisby, Matt Martinson, Matt Thomas");
+MODULE_AUTHOR("Group 02");
 MODULE_LICENSE("GPL");
-MODULE_DESCRIPTION("LOOK IO scheduler");
+MODULE_DESCRIPTION("Look IO scheduler");
+
