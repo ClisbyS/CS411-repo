@@ -27,19 +27,94 @@ static void look_merged_requests(struct request_queue *q, struct request *rq,
 static int look_dispatch(struct request_queue *q, int force)
 {
 	struct look_data *nd = q->elevator->elevator_data;
-	
-	printk( "[LOOK] Entering Dispatch\n" );
+	struct request *rq, *higher = NULL, *lower = NULL;
 
+	//printk( "[LOOK] Entering Dispatch\n" ); // Antiquated
+	
+	// Only dispatch if the request queue is not empty
 	if (!list_empty(&nd->queue)) {
-		struct request *rq;
-		rq = list_entry(nd->queue.next, struct request, queuelist);
-		list_del_init(&rq->queuelist);
-		nd->cur_pos = blk_rq_pos(rq) + blk_rq_sectors(rq);
-		printk( "[LOOK] Cur Pos is %llu\n", nd->cur_pos );
-		elv_dispatch_sort(q, rq);
+		//struct request *rq, *higher, *lower; // Declared outside if now
+
+		// Find next higher and lower requests based 
+		// on current head location
+		while( nd->queue.next != NULL ) {
+
+			rq = list_entry(nd->queue.next, struct request, queuelist);
+		
+			// Is this request the better higher one?
+			if( blk_rq_pos( rq ) > nd->cur_pos ) {
+				if( higher != NULL ) {
+					if( blk_rq_pos( rq ) < blk_rq_pos( higher ) ) {
+						higher = rq;
+					}
+				}
+				else {
+					higher = rq;
+				}
+			}
+			
+			// Is this request the better lower one?
+			if( blk_rq_pos( rq ) < nd->cur_pos ) {
+				if( lower != NULL ) {
+					if( blk_rq_pos( rq ) > blk_rq_pos( lower ) ) {
+						lower = rq;
+					}
+				}
+				else {
+					lower = rq;
+				}
+			}
+
+		}
+
+		// Switch directions if needed
+		// ALSO: REMOVE BRACKETS IF THIS CODE DOES NOT CHANGE!!!
+		// 	silly conventions...
+		if( nd->dir == 1 && higher == NULL ) {
+			nd->dir = 0;
+		}
+		if( nd->dir == 0 && lower == NULL ) {
+			nd->dir = 1;
+		}
+
+		// FOR DEBUGGING PURPOSES ONLY
+		if( higher == NULL ) {
+			printk( "[LOOK] higher: NULL\n" );
+		}
+		else {
+			printk( "[LOOK] higher: %llu\n", blk_rq_pos( higher ) );
+		}
+		if( lower == NULL ) {
+			printk( "[LOOK] lower: NULL\n" );
+		}
+		else {
+			printk( "[LOOK] lower: %llu\n", blk_rq_pos( lower ) );
+		}
+
+		// Dispatch request
+		if( nd->dir == 1 ) {	// Going up!
+			printk( "[LOOK] dsp %u %llu\n", nd->dir, blk_rq_pos( higher ) );
+			list_del_init( &higher->queuelist );
+			elv_dispatch_sort( q, higher );
+		}
+		if( nd->dir == 0 ) {	// Going down!
+			printk( "[LOOK] dsp %u %llu\n", nd->dir, blk_rq_pos( lower ) );
+			list_del_init( &lower->queuelist );
+			elv_dispatch_sort( q, lower );
+		}
+
+		//list_del_init(&rq->queuelist);
+		//nd->cur_pos = blk_rq_pos(rq) + blk_rq_sectors(rq);
+		//printk( "[LOOK] Cur Pos is %llu\n", nd->cur_pos );
+		//elv_dispatch_sort(q, rq);
 		return 1;
+
 	}
+
+	printk( "[LOOK] No request to dispatch\n" );
+
 	return 0;
+
 }
 
 /*
@@ -50,7 +125,7 @@ static void look_add_request(struct request_queue *q, struct request *rq)
 {
 	struct look_data *nd = q->elevator->elevator_data;
 
-	printk( "[LOOK] Entering Add Request\n" );
+	printk( "[LOOK] add %u %llu\n", nd->dir, blk_rq_pos( rq ) );
 
 	list_add_tail(&rq->queuelist, &nd->queue);
 }
