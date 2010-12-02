@@ -91,8 +91,11 @@ static int look_dispatch(struct request_queue *q, int force)
 			}
 		}		
 
-		if(flip)
-			nd->head_direction == 1?nd->head_direction = 0:nd->head_direction = 1;
+		if(flip && nd->head_direction == 1)
+			nd->head_direction = 0;
+		else if(flip)
+			nd->head_direction = 1;
+		
 			
 
 		if(nd->head_direction == 1){ // Disk head ascending
