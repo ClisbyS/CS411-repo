@@ -103,7 +103,7 @@ static int look_dispatch(struct request_queue *q, int force)
 		}
 		if( nd->dir == 0 ) {	// Going down!
 			printk( "[LOOK] dsp %u %llu\n", nd->dir, blk_rq_pos( lower ) );
-			nd->cur_pos = blk_rq_pos( lower ) + blk_rq_sectors( lower ) );
+			nd->cur_pos = blk_rq_pos( lower ) + blk_rq_sectors( lower );
 			list_del_init( &lower->queuelist );
 			elv_dispatch_sort( q, lower );
 		}
