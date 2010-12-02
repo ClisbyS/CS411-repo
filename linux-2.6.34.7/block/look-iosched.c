@@ -91,7 +91,7 @@ static void *look_init_queue(struct request_queue *q)
 		return NULL;
 	INIT_LIST_HEAD(&nd->queue);
 	nd->cur_pos = 0;
-	nd->direction = 1;	//Initially going up!
+	nd->dir = 1;	//Initially going up!
 	return nd;
 }
 
