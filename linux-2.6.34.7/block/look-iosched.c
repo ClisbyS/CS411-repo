@@ -29,20 +29,15 @@ static int look_dispatch(struct request_queue *q, int force)
 	struct look_data *nd = q->elevator->elevator_data;
 	struct request *rq, *higher = NULL, *lower = NULL;
 	struct list_head *pos;
-
-	//printk( "[LOOK] Entering Dispatch\n" ); // Antiquated
 	
 	// Only dispatch if the request queue is not empty
 	if (!list_empty(&nd->queue)) {
-		//struct request *rq, *higher, *lower; // Declared outside if now
 
 		// Find next higher and lower requests based 
 		// on current head location
 		list_for_each( pos, &nd->queue ) {
-		//while( nd->queue.next != NULL ) {
 
 			rq = list_entry( pos, struct request, queuelist );
-			//rq = list_entry(nd->queue.next, struct request, queuelist);
 		
 			// Is this request the better higher one?
 			if( blk_rq_pos( rq ) >= nd->cur_pos ) {
@@ -73,15 +68,13 @@ static int look_dispatch(struct request_queue *q, int force)
 		// Switch directions if needed
 		// ALSO: REMOVE BRACKETS IF THIS CODE DOES NOT CHANGE!!!
 		// 	silly conventions...
-		if( nd->dir == 1 && higher == NULL ) {
+		if( nd->dir == 1 && higher == NULL )
 			nd->dir = 0;
-		}
-		if( nd->dir == 0 && lower == NULL ) {
+		if( nd->dir == 0 && lower == NULL )
 			nd->dir = 1;
-		}
 
 		// FOR DEBUGGING PURPOSES ONLY
-		if( higher == NULL ) {
+		/*if( higher == NULL ) {
 			printk( "[LOOK] higher: NULL\n" );
 		}
 		else {
@@ -92,19 +85,17 @@ static int look_dispatch(struct request_queue *q, int force)
 		}
 		else {
 			printk( "[LOOK] lower: %llu\n", blk_rq_pos( lower ) );
-		}
+		}*/
 
 		// Dispatch request
-		if( nd->dir == 1 ) {	// Going up!
+		if( nd->dir == 1 ) {
 			printk( "[LOOK] dsp %u %llu\n", nd->dir, blk_rq_pos( higher ) );
-			//nd->cur_pos = blk_rq_pos( higher ) + blk_rq_sectors( higher );
 			nd->cur_pos = higher->bio->bi_sector + bio_sectors(higher->bio);
 			list_del_init( &higher->queuelist );
 			elv_dispatch_sort( q, higher );
 		}
-		if( nd->dir == 0 ) {	// Going down!
+		if( nd->dir == 0 ) {
 			printk( "[LOOK] dsp %u %llu\n", nd->dir, blk_rq_pos( lower ) );
-			//nd->cur_pos = blk_rq_pos( lower ) + blk_rq_sectors( lower );
 			nd->cur_pos = lower->bio->bi_sector + bio_sectors(lower->bio);
 			list_del_init( &lower->queuelist );
 			elv_dispatch_sort( q, lower );
