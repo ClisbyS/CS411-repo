@@ -28,6 +28,7 @@ static int look_dispatch(struct request_queue *q, int force)
 {
 	struct look_data *nd = q->elevator->elevator_data;
 	struct request *rq, *higher = NULL, *lower = NULL;
+	struct list_head *pos;
 
 	//printk( "[LOOK] Entering Dispatch\n" ); // Antiquated
 	
@@ -37,9 +38,11 @@ static int look_dispatch(struct request_queue *q, int force)
 
 		// Find next higher and lower requests based 
 		// on current head location
-		while( nd->queue.next != NULL ) {
+		list_for_each( pos, &nd->queue ) {
+		//while( nd->queue.next != NULL ) {
 
-			rq = list_entry(nd->queue.next, struct request, queuelist);
+			rq = list_entry( pos, struct request, queuelist );
+			//rq = list_entry(nd->queue.next, struct request, queuelist);
 		
 			// Is this request the better higher one?
 			if( blk_rq_pos( rq ) > nd->cur_pos ) {
