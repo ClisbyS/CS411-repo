@@ -73,7 +73,7 @@ static int look_dispatch(struct request_queue *q, int force)
 		// Switch directions if needed
 		// ALSO: REMOVE BRACKETS IF THIS CODE DOES NOT CHANGE!!!
 		// 	silly conventions...
-		/*	if( nd->dir == 1 && higher == NULL ) {
+		if( nd->dir == 1 && higher == NULL ) {
 			nd->dir = 0;
 		}
 		if( nd->dir == 0 && lower == NULL ) {
@@ -104,19 +104,19 @@ static int look_dispatch(struct request_queue *q, int force)
 			printk( "[LOOK] dsp %u %llu\n", nd->dir, blk_rq_pos( lower ) );
 			list_del_init( &lower->queuelist );
 			elv_dispatch_sort( q, lower );
-		}*/
+		}
 
 		// FOR GREAT SILLY TESTING
-		if( higher == NULL ) {
+		/*if( higher == NULL ) {
 			printk( "[LOOK] dsp %u %llu\n", nd->dir, blk_rq_pos( lower ) );
 			list_del_init( &lower->queuelist );
 			elv_dispatch_sort( q, lower );
 		}
 		else {
-			printk( "[LOOK] dsp %u %llu]n", nd->dir, blk_rq_pos( higher ) );
+			printk( "[LOOK] dsp %u %llu\n", nd->dir, blk_rq_pos( higher ) );
 			list_del_init( &higher->queuelist );
 			elv_dispatch_sort( q, higher );
-		}
+		}*/
 
 		//list_del_init(&rq->queuelist);
 		//nd->cur_pos = blk_rq_pos(rq) + blk_rq_sectors(rq);
