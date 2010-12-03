@@ -1,5 +1,14 @@
 /*
- * Elevator Look, names go next
+ * Elevator Look Scheduler
+ * Team 2
+ * Ian Crawford, Sarah Clisby, Matt Martinson, Matt Thomas
+ * 
+ * We changed the data structure look_data to keep track of
+ * the disk head position and motion of direction. The other
+ * changes were made in look_dispatch, which searches through
+ * the request list and finds the next largest request block
+ * if the head is moving up, and the next smallest request
+ * block if the head is moving down.
  */
 #include <linux/blkdev.h>
 #include <linux/elevator.h>
@@ -8,6 +17,13 @@
 #include <linux/slab.h>
 #include <linux/init.h>
 
+/**
+ * struct look_data - Keeps track of the list head, disk head position and direction.
+ * 
+ * @queue: the list head
+ * @cur_pos: the current position of the disk head
+ * @dir: the direction the disk head is traveling
+ */
 struct look_data {
 	struct list_head queue;
 	sector_t cur_pos;
@@ -15,14 +31,26 @@ struct look_data {
 				//0 for down
 };
 
+/**
+ * look_merged_requests - Unchanged in this project.
+ */
 static void look_merged_requests(struct request_queue *q, struct request *rq,
 				 struct request *next)
 {
 	list_del_init(&next->queuelist);
 }
 
-/*
- * Loop through request queue, dispatch the correct request.
+/**
+ * look_dispatch - Loops through the request queue, dispatches the correct request.
+ * @*q: the request queue
+ * @force: unused variable
+ *
+ * The search starts at the head of the list and searches for the request with the
+ * smallest block number higher than the current disk head position and the request
+ * with the largest block number lower than the current disk head position. It then
+ * checks to see if the disk head needs to switch directions (if it has already
+ * dispatched the highest or lowest request in the list) and dispatches the proper
+ * request (higher or lower).
  */
 static int look_dispatch(struct request_queue *q, int force)
 {
@@ -66,26 +94,10 @@ static int look_dispatch(struct request_queue *q, int force)
 		}
 
 		// Switch directions if needed
-		// ALSO: REMOVE BRACKETS IF THIS CODE DOES NOT CHANGE!!!
-		// 	silly conventions...
 		if( nd->dir == 1 && higher == NULL )
 			nd->dir = 0;
 		if( nd->dir == 0 && lower == NULL )
 			nd->dir = 1;
-
-		// FOR DEBUGGING PURPOSES ONLY
-		/*if( higher == NULL ) {
-			printk( "[LOOK] higher: NULL\n" );
-		}
-		else {
-			printk( "[LOOK] higher: %llu\n", blk_rq_pos( higher ) );
-		}
-		if( lower == NULL ) {
-			printk( "[LOOK] lower: NULL\n" );
-		}
-		else {
-			printk( "[LOOK] lower: %llu\n", blk_rq_pos( lower ) );
-		}*/
 
 		// Dispatch request
 		if( nd->dir == 1 ) {
@@ -101,22 +113,6 @@ static int look_dispatch(struct request_queue *q, int force)
 			elv_dispatch_sort( q, lower );
 		}
 
-		// FOR GREAT SILLY TESTING
-		/*if( higher == NULL ) {
-			printk( "[LOOK] dsp %u %llu\n", nd->dir, blk_rq_pos( lower ) );
-			list_del_init( &lower->queuelist );
-			elv_dispatch_sort( q, lower );
-		}
-		else {
-			printk( "[LOOK] dsp %u %llu\n", nd->dir, blk_rq_pos( higher ) );
-			list_del_init( &higher->queuelist );
-			elv_dispatch_sort( q, higher );
-		}*/
-
-		//list_del_init(&rq->queuelist);
-		//nd->cur_pos = blk_rq_pos(rq) + blk_rq_sectors(rq);
-		//printk( "[LOOK] Cur Pos is %llu\n", nd->cur_pos );
-		//elv_dispatch_sort(q, rq);
 		return 1;
 
 	}
@@ -127,9 +123,14 @@ static int look_dispatch(struct request_queue *q, int force)
 
 }
 
-/*
- * Leaving add request as it was. Dispatch will search through the 
- * request queue to find the next request to dispatch.
+/**
+ * look_add_request - Adds a request to the request list.
+ * @*q: request list
+ * @*rq: request to add
+ *
+ * This function is unchanged, save for the addition of the
+ * printk statement.  All the LOOK logic is implemented in
+ * look_dispatch
  */
 static void look_add_request(struct request_queue *q, struct request *rq)
 {
@@ -140,6 +141,9 @@ static void look_add_request(struct request_queue *q, struct request *rq)
 	list_add_tail(&rq->queuelist, &nd->queue);
 }
 
+/**
+ * look_queue_emtpy - This function is unchanged.
+ */
 static int look_queue_empty(struct request_queue *q)
 {
 	struct look_data *nd = q->elevator->elevator_data;
@@ -147,6 +151,10 @@ static int look_queue_empty(struct request_queue *q)
 	return list_empty(&nd->queue);
 }
 
+/**
+ * struct look_former_request - Returns the previous request.
+ * This function is unchanged and unused.
+ */
 static struct request *
 look_former_request(struct request_queue *q, struct request *rq)
 {
@@ -157,6 +165,10 @@ look_former_request(struct request_queue *q, struct request *rq)
 	return list_entry(rq->queuelist.prev, struct request, queuelist);
 }
 
+/**
+ * struct look_latter_request - Returns the next request.
+ * This function is unchanged and used.
+ */
 static struct request *
 look_latter_request(struct request_queue *q, struct request *rq)
 {
@@ -167,6 +179,13 @@ look_latter_request(struct request_queue *q, struct request *rq)
 	return list_entry(rq->queuelist.next, struct request, queuelist);
 }
 
+/**
+ * *look_init_queue - Initializes the request list.
+ * @*q: the request list
+ *
+ * Initializes the request queue and the disk head position
+ * and direction.
+ */
 static void *look_init_queue(struct request_queue *q)
 {
 	struct look_data *nd;
@@ -180,6 +199,12 @@ static void *look_init_queue(struct request_queue *q)
 	return nd;
 }
 
+/**
+ * look_exit_queue - Frees memory allocated by look_init_queue.
+ * @*e: elevator queue
+ *
+ * This function is unchanged.
+ */
 static void look_exit_queue(struct elevator_queue *e)
 {
 	struct look_data *nd = e->elevator_data;
@@ -219,7 +244,7 @@ module_init(look_init);
 module_exit(look_exit);
 
 
-MODULE_AUTHOR("Group 02");
+MODULE_AUTHOR("Team 02");
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Look IO scheduler");
 
