@@ -1,0 +1,260 @@
+commit 2551fd04c8153fba683fc5e2a7cb5c1ac1196255
+Author: ClisbyS <clisbys@onid.orst.edu>
+Date:   Thu Dec 2 16:53:06 2010 -0800
+
+    Created patch file
+
+commit 661570a7dda749a5c6e973b9d45bcdbf72377251
+Author: ClisbyS <clisbys@onid.orst.edu>
+Date:   Thu Dec 2 16:20:25 2010 -0800
+
+    Fully commented look_iosched.c
+
+commit b15b3ca3d0ef0d676e55cf392f472d35050a6c33
+Author: martinm2 <martinm2@onid.orst.edu>
+Date:   Thu Dec 2 15:53:24 2010 -0800
+
+    Did some stuff
+
+commit 4a35e4f96747b12f183045e16f73d059901fc46d
+Merge: d258a56 e61f81d
+Author: martinm2 <martinm2@onid.orst.edu>
+Date:   Thu Dec 2 15:30:00 2010 -0800
+
+    Merge branch 'linux-2.6.34.7-look_iosched' of github.com:ClisbyS/CS411-repo into linux-2.6.34.7-look_iosched
+
+commit d258a56a38ad2ecbc9a4dcfa87f33e188e41a341
+Author: martinm2 <martinm2@onid.orst.edu>
+Date:   Thu Dec 2 15:29:29 2010 -0800
+
+    What did I do?
+
+commit e61f81de987a8a715a1cb954817413832afc95e4
+Author: CrawfordI <crawfoia@onid.orst.edu>
+Date:   Wed Dec 1 22:29:32 2010 -0800
+
+    using alternative method to update current sector
+
+commit 33224dedc106de89a5256422207d8e69da0ef011
+Author: martinm2 <martinm2@onid.orst.edu>
+Date:   Wed Dec 1 20:23:06 2010 -0800
+
+    Removed that last update, inexplicable errors
+
+commit 513a9c19664426f5538beb85ffe5d80bd45fcb46
+Author: martinm2 <martinm2@onid.orst.edu>
+Date:   Wed Dec 1 20:01:51 2010 -0800
+
+    Fixed compile error
+
+commit ab478c45ad4a710385daeb05e0401a60a99f40cb
+Author: martinm2 <martinm2@onid.orst.edu>
+Date:   Wed Dec 1 19:57:50 2010 -0800
+
+    Added code to update cur pos
+
+commit fcd96ef9d0c06b6b818961fc757719fec5601ffb
+Author: martinm2 <martinm2@onid.orst.edu>
+Date:   Wed Dec 1 19:47:25 2010 -0800
+
+    Trying old code, with infinite loop fixed
+
+commit d601ae2ba5a473323751b15ceca6fa0781877a71
+Author: martinm2 <martinm2@onid.orst.edu>
+Date:   Wed Dec 1 19:39:18 2010 -0800
+
+    Fixed infinite loop
+
+commit 73d381c51960aa4896f1b3b60578b12e1d52f71a
+Author: martinm2 <martinm2@onid.orst.edu>
+Date:   Wed Dec 1 19:02:25 2010 -0800
+
+    CRAZY test
+
+commit 8baebaf0053d5bb5e4c36712619911f7a0c6229c
+Author: martinm2 <martinm2@onid.orst.edu>
+Date:   Wed Dec 1 18:37:57 2010 -0800
+
+    Accidentally implemented the whole scheduler
+
+commit 97b0b4ee5d01d692f9eb6258c89959e249a104b8
+Author: martinm2 <martinm2@onid.orst.edu>
+Date:   Wed Dec 1 17:41:18 2010 -0800
+
+    fixed a bug
+
+commit f7fd919c56c19117f49f74e3a75d23c6d011080f
+Author: martinm2 <martinm2@onid.orst.edu>
+Date:   Wed Dec 1 17:36:35 2010 -0800
+
+    Testing cur pos
+
+commit 8150ea94efdea63aae7a1459d3c28435de9167ad
+Author: martinm2 <martinm2@onid.orst.edu>
+Date:   Wed Dec 1 17:08:02 2010 -0800
+
+    Retrying with incremental development
+
+commit d4e50bdd7b429e654a8440e7bed9f8bd985ee590
+Author: CrawfordI <crawfoia@onid.orst.edu>
+Date:   Wed Dec 1 16:40:59 2010 -0800
+
+    re-added code
+
+commit aaad7c3ead5cc01b071522e0e44d00a226adfefd
+Author: CrawfordI <crawfoia@onid.orst.edu>
+Date:   Wed Dec 1 16:29:34 2010 -0800
+
+    think I fixed the correct function this time 4
+
+commit 042ec5db105c54b08e136e420eff78ec7778b60d
+Author: CrawfordI <crawfoia@onid.orst.edu>
+Date:   Wed Dec 1 16:08:07 2010 -0800
+
+    think I fixed the correct function this time 3
+
+commit 2ae0e897b4a56ebcd1add8f0edf9b933e3de445d
+Author: CrawfordI <crawfoia@onid.orst.edu>
+Date:   Wed Dec 1 16:03:15 2010 -0800
+
+    think I fixed the correct function this time 2
+
+commit 204d0ce479d327dc347cbb0568d0c5ff4deeb8e8
+Author: CrawfordI <crawfoia@onid.orst.edu>
+Date:   Wed Dec 1 15:58:16 2010 -0800
+
+    think I fixed the correct function this time
+
+commit 98d1e255d13a5302f68c60b6d635454389ede1a1
+Author: CrawfordI <crawfoia@onid.orst.edu>
+Date:   Wed Dec 1 15:15:32 2010 -0800
+
+    modifed code to add request
+
+commit eb07399fd64a7f7a7c4cb3e9e178a0085d30a745
+Author: CrawfordI <crawfoia@onid.orst.edu>
+Date:   Wed Dec 1 15:00:17 2010 -0800
+
+    fixed ! by adding vim look-iosched.c
+
+commit 84862e78fe04c8eb33914899978c606c6bcee671
+Author: CrawfordI <crawfoia@onid.orst.edu>
+Date:   Wed Dec 1 13:16:00 2010 -0800
+
+    maybe fixed angry.
+
+commit eb6473d077b38a9ab8f36c66d332c9687e9b5b5e
+Author: martinm2 <martinm2@onid.orst.edu>
+Date:   Tue Nov 30 20:38:10 2010 -0800
+
+    fixed a compile warning
+
+commit d379c4875b7dd853f6328630eb51fa7e710e67d6
+Author: martinm2 <martinm2@onid.orst.edu>
+Date:   Tue Nov 30 20:34:38 2010 -0800
+
+    printks...
+
+commit 615930eb58d7590344409ac39a0b07a5576b41f3
+Author: martinm2 <martinm2@onid.orst.edu>
+Date:   Tue Nov 30 20:25:29 2010 -0800
+
+    maybe the level things are the wrongered?
+
+commit 63517da67ee10e68872c6aacb8ab613a5bdb7ab4
+Author: martinm2 <martinm2@onid.orst.edu>
+Date:   Tue Nov 30 20:11:30 2010 -0800
+
+    Why aren't the printk statements showing up
+
+commit 5b129894cec6d751539e4f9907d97c964523bbb4
+Author: martinm2 <martinm2@onid.orst.edu>
+Date:   Tue Nov 30 18:06:36 2010 -0800
+
+    Mroe comiple fixes
+
+commit e8f8ad738185e1ba60bb1ef8e3cd8d8637e016d1
+Author: martinm2 <martinm2@onid.orst.edu>
+Date:   Tue Nov 30 18:03:52 2010 -0800
+
+    more compile errors
+
+commit 76dec224996321b30dcca5517b1e5b073b4b8c3f
+Author: martinm2 <martinm2@onid.orst.edu>
+Date:   Tue Nov 30 17:58:05 2010 -0800
+
+    fixing copypastefails
+
+commit 5295015ed4359e60b9b2169ff9838af72865d40e
+Author: martinm2 <martinm2@onid.orst.edu>
+Date:   Tue Nov 30 17:53:53 2010 -0800
+
+    Fixing compile errors, take 1
+
+commit 7de66efc2cffaa8a99c52d9ae87dd1f728a7f2e0
+Author: martinm2 <martinm2@onid.orst.edu>
+Date:   Tue Nov 30 17:49:25 2010 -0800
+
+    Checking if printks even work.
+
+commit 043c47bc2071e4d1b41f24baa3ff9c6657298c53
+Author: martinm2 <martinm2@onid.orst.edu>
+Date:   Tue Nov 30 16:58:19 2010 -0800
+
+    Added testing printks
+
+commit f6cc269c3b4989076d6177d5cb84fbe8a8c34bac
+Author: Matt Thomas <baddack@gmail.com>
+Date:   Tue Nov 30 16:11:50 2010 -0800
+
+    Accidently deleted slob.c, so I put it back
+
+commit 8b4c8aac385b42da926b09f61878011f0396396a
+Author: Matt Thomas <baddack@gmail.com>
+Date:   Tue Nov 30 16:06:14 2010 -0800
+
+    fixed some changes from previous project that broke this project
+
+commit c785132b3b509e14277681809299204766aea2b1
+Merge: 4c08373 1791b87
+Author: Matt Thomas <baddack@gmail.com>
+Date:   Tue Nov 30 15:45:05 2010 -0800
+
+    Merge branch 'linux-2.6.34.7-look_iosched' of github.com:ClisbyS/CS411-repo into linux-2.6.34.7-look_iosched
+
+commit 1791b8742645db7f01274e4920fc23c1a59cd9d6
+Author: CrawfordI <crawfoia@onid.orst.edu>
+Date:   Tue Nov 30 14:44:43 2010 -0800
+
+    fixing compile errors
+
+commit ad4edb5527c4e2a71efbaf27f9e4ff98223a7899
+Author: ClisbyS <clisbys@onid.orst.edu>
+Date:   Mon Nov 29 18:01:29 2010 -0800
+
+    Commented all functions.
+
+commit c72165dcd8a2b66b7b40f9fef5befbd65e5f9d0b
+Author: CrawfordI <crawfoia@onid.orst.edu>
+Date:   Mon Nov 29 17:22:26 2010 -0800
+
+    Wrote add and dispatch.
+
+commit a4c6fc62043dd95201cb4713b07a9fac6f6ed6ba
+Merge: 37ab8a0 cadaa7b
+Author: CrawfordI <crawfoia@onid.orst.edu>
+Date:   Mon Nov 29 16:10:51 2010 -0800
+
+    Merge branch 'linux-2.6.34.7-look_iosched' of github.com:ClisbyS/CS411-repo into linux-2.6.34.7-look_iosched
+
+commit cadaa7bd52b0d36ff60f1b1107920080e564588d
+Author: ClisbyS <clisbys@onid.orst.edu>
+Date:   Tue Nov 23 16:01:55 2010 -0800
+
+    Actually added look-iosched.c
+
+commit 49587015121e11c44915909d00045920c02330ff
+Author: ClisbyS <clisbys@onid.orst.edu>
+Date:   Tue Nov 23 15:31:41 2010 -0800
+
+    Did steps 3a and 3b
